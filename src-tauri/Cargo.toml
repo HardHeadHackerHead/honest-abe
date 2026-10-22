@@ -26,7 +26,7 @@ hound = "3.5"
 rubato = "0.15"
 arboard = "3.2"
 lazy_static = "1.4"
-enigo = "0.2"
+enigo = "0.6"
 device_query = "2.1"
 # Transcription engine: provider HTTP (rustls with the ring provider, no OpenSSL),
 # keychain storage for API keys, local Whisper and model verification
