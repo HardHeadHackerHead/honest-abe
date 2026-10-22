@@ -1,0 +1,79 @@
+---
+title: Getting started
+description: Install Abe, pick an engine and dictate your first sentence in about two minutes.
+---
+
+import { Steps, Tabs, TabItem } from '@astrojs/starlight/components';
+import { DICTATE } from '../../../data/hotkeys';
+
+## 1. Install
+
+Download the installer for your platform from the [download page](/download).
+
+<Tabs syncKey="os">
+<TabItem label="Windows">
+
+<Steps>
+
+1. Run `Abe-windows-x64-setup.exe`.
+2. If Windows SmartScreen shows **"Windows protected your PC"**, click **More info**, then **Run anyway**. New releases show this until they build up reputation.
+3. Follow the installer. You don't need administrator rights. Abe starts and appears in your system tray.
+
+</Steps>
+
+</TabItem>
+<TabItem label="macOS">
+
+<Steps>
+
+1. Open the `.dmg` (Apple Silicon or Intel) and drag **Abe** into **Applications**.
+2. Launch Abe from Applications.
+3. Grant the permissions macOS asks for, in **System Settings → Privacy & Security**:
+   - **Microphone**, so Abe can hear you
+   - **Accessibility**, so Abe can paste or type into other apps
+   - **Input Monitoring**, so your global hotkey works in every app
+   - **Automation**, so Abe can paste text into other applications
+
+   If you missed a prompt, add Abe in those settings manually, then quit and reopen it.
+
+</Steps>
+
+</TabItem>
+<TabItem label="Linux">
+
+Linux support is **coming soon**. It isn't available yet; watch the [releases on GitHub](https://github.com/HardHeadHackerHead/honest-abe/releases) to hear when it lands.
+
+</TabItem>
+</Tabs>
+
+## 2. First run
+
+The setup guide opens the first time you launch Abe. It walks you through:
+
+<Steps>
+
+1. **Choose how Abe transcribes.** Pick **Local (offline)** to run Whisper on this computer, free and with no key, or **Use my own API key** to use Groq (recommended), OpenAI or a compatible service. Not sure? Read [Local vs Cloud](/docs/choosing-an-engine).
+2. **Add your key** (cloud only). Pick the provider, paste the key and click **Test**; Abe confirms when the key works. Step-by-step guides: [Groq](/docs/api-keys/groq) (recommended, free to start), [OpenAI](/docs/api-keys/openai), [Custom endpoint](/docs/api-keys/custom).
+3. **Choose your microphone** and check the level meter moves when you talk.
+4. **Learn the hotkey.** The default is shown, and you can change it here or later in Settings.
+
+</Steps>
+
+You can rerun the guide any time from **Settings → Restart Setup Guide**.
+
+## 3. Your first dictation
+
+<Steps>
+
+1. Click into any text field: an email, a document, a chat box.
+2. Hold <kbd>{DICTATE.windows.join(' + ')}</kbd> (on macOS, <kbd>{DICTATE.macos.join(' + ')}</kbd>).
+3. Speak naturally. The recording overlay shows a live level meter.
+4. Release the keys. A moment later your words appear at the cursor.
+
+</Steps>
+
+That's it. Next, try [Voice Transform](/docs/voice-transform) to rewrite text by voice, or tune things in [Settings](/docs/settings).
+
+:::tip
+Speak in full sentences, as if you were talking to someone. Whisper uses context, so complete thoughts transcribe better than single words.
+:::

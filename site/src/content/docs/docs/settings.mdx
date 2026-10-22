@@ -1,0 +1,74 @@
+---
+title: Settings reference
+description: Every Abe setting, what it does and its default.
+---
+
+Open Settings from the gear icon in the Abe window. Changes save immediately. **Reset All Settings to Default** at the bottom restores the defaults listed below.
+
+## Engine
+
+| Setting | Options | Default |
+|---|---|---|
+| Mode | **Local (offline)** or **Use my own API key** | Chosen during setup |
+| Local model | Tiny, Base, Small, Large v3 Turbo ([guide](/docs/local-models)) | Base |
+| Provider | Groq (recommended), OpenAI, Custom (OpenAI-compatible). [Key guides](/docs/api-keys) | Chosen during setup |
+| Model | Free text; defaults per provider | `whisper-large-v3-turbo` (Groq), `gpt-transcribe` (OpenAI) |
+| Base URL | Only for Custom, e.g. `http://localhost:8000/v1` | — |
+| API key | Paste, then **Test**; **Remove** deletes it. Stored in the OS keychain | — |
+| Transform provider and model | Groq, OpenAI or Custom, used by [Voice Transform](/docs/voice-transform), even in Local mode | Groq `openai/gpt-oss-120b` (recommended); OpenAI `gpt-6-luna` |
+
+## Transcription
+
+| Setting | Options | Default |
+|---|---|---|
+| Shortcuts: Record | Any key combination or mouse button | <kbd>Ctrl</kbd> + <kbd>Alt</kbd> + <kbd>Space</kbd> |
+| Shortcuts: Paste Last | Any key combination or mouse button | <kbd>Ctrl</kbd> + <kbd>Alt</kbd> + <kbd>V</kbd> |
+| Shortcuts: Transform | Any key combination or mouse button | <kbd>Ctrl</kbd> + <kbd>Alt</kbd> + <kbd>T</kbd> |
+| Language | Auto-detect plus 28 languages | English |
+| Push-to-Talk | On: hold to record. Off: press to start, press to stop | On |
+| Microphone | Default Microphone or a specific input device | Default Microphone |
+
+On macOS, <kbd>Alt</kbd> is the <kbd>Option</kbd> key. See [Hotkeys and modes](/docs/hotkeys).
+
+## Word Dictionary
+
+Pairs of **Misheard word** → **Correct word**, applied to every transcription. See [Word dictionary](/docs/dictionary).
+
+## Advanced
+
+### Recording
+
+| Setting | Range | Default | What it does |
+|---|---|---|---|
+| Min Duration | None to 3 s | None | Recordings shorter than this are discarded, which prevents accidental taps |
+| Max Duration | 30 s to 10 min, or No limit | 5 min | Recording stops automatically at this length |
+| Audio Ducking | Mute others to Off | 20% | Other apps' volume while you record. [Details](/docs/audio-ducking) |
+
+### Output
+
+| Setting | Options | Default |
+|---|---|---|
+| Transcription Style | Formal, Balanced, Relaxed | Balanced |
+| Typing Mode | Instant, Typewriter | Instant |
+| Typing Speed | 1,000 to 2,000 (typewriter only) | 1,500 |
+| Transform Prompt | Up to 500 characters of standing instructions | Empty |
+
+See [Output modes](/docs/output-modes).
+
+### Appearance
+
+| Setting | Options | Default |
+|---|---|---|
+| Sound Effects | Beeps when recording starts and stops | On |
+| Recording Indicator | Show the floating overlay | On |
+| Indicator Position | **Reset to Center** moves the overlay back to its default spot. Drag the overlay to move it; right-click to lock it | — |
+
+## Other
+
+- **Restart Setup Guide** reopens the first-run walkthrough.
+- **Report an Issue** opens a new GitHub issue.
+- The **About** section shows your version, the license and links to the source code and [donations](/donate).
+
+:::note
+Abe is actively developed and some labels may differ slightly between versions.
+:::

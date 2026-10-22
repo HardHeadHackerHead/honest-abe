@@ -1,0 +1,26 @@
+---
+title: Audio ducking
+description: Abe can lower other apps' volume while you record, then restore it.
+---
+
+Audio ducking turns down music, videos and calls while you're recording, so they don't drown you out or end up in your transcription. When you stop, the volume comes back.
+
+## Setting the level
+
+**Settings → Advanced → Recording → Audio Ducking** is a slider for how loud other apps should be while you record:
+
+| Setting | Effect |
+|---|---|
+| **20%** (default) | Other apps play at a fifth of their volume |
+| **Off** (100%) | Nothing changes |
+| **Mute others** (0%) | Other apps go silent while you record |
+
+## Platform notes
+
+- **Windows:** Abe lowers the volume of other applications individually and leaves its own sounds alone.
+- **macOS:** Abe lowers the overall system output volume instead, then restores it.
+- **Linux:** support depends on your audio system and may be unavailable.
+
+:::note
+If Abe is force-quit or crashes while recording, other apps might stay quieter than before. Restore them in your system's volume mixer.
+:::

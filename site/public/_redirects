@@ -1,0 +1,13 @@
+# Cloudflare Pages redirects. Older app builds and old links point at these.
+/pricing        /donate     301
+/how-it-works   /docs       301
+/get-started    /download   301
+/download/*     /download   301
+/docs/          /docs       301
+/auth/*         /           301
+/dashboard      /           301
+/dashboard/*    /           301
+/admin          /           301
+/admin/*        /           301
+/ref/*          /           301
+/waitlist       /           301

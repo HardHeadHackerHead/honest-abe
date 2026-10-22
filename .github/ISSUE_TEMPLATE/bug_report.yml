@@ -1,0 +1,92 @@
+name: Bug report
+description: Something in Abe doesn't work as expected
+labels: ["bug"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks for taking the time to report a bug.
+
+        **Never paste an API key** in this form, in logs or in screenshots. Issues are public. If you
+        posted a key by accident, revoke it with your provider right away.
+
+        For security problems, please [report them privately](https://github.com/HardHeadHackerHead/honest-abe/security/advisories/new) instead.
+  - type: textarea
+    id: description
+    attributes:
+      label: What happened?
+      description: What did you expect to happen, and what happened instead?
+    validations:
+      required: true
+  - type: textarea
+    id: steps
+    attributes:
+      label: Steps to reproduce
+      placeholder: |
+        1. Open Settings and choose ...
+        2. Press Ctrl+Alt+Space and say ...
+        3. ...
+    validations:
+      required: true
+  - type: dropdown
+    id: os
+    attributes:
+      label: Operating system
+      options:
+        - Windows 11
+        - Windows 10
+        - macOS (Apple silicon)
+        - macOS (Intel)
+        - Linux
+        - Other
+    validations:
+      required: true
+  - type: input
+    id: os-version
+    attributes:
+      label: OS version
+      placeholder: e.g. Windows 11 24H2, macOS 15.4, Ubuntu 24.04 (X11 or Wayland)
+  - type: input
+    id: version
+    attributes:
+      label: Abe version
+      description: Shown on the About tab.
+      placeholder: e.g. 1.0.0
+    validations:
+      required: true
+  - type: dropdown
+    id: engine
+    attributes:
+      label: Transcription engine
+      options:
+        - Local (offline Whisper)
+        - Cloud - Groq
+        - Cloud - OpenAI
+        - Cloud - Custom (OpenAI-compatible)
+        - Not related to transcription
+    validations:
+      required: true
+  - type: input
+    id: model
+    attributes:
+      label: Model
+      description: The local model or cloud model you use, if it's relevant.
+      placeholder: e.g. base, large-v3-turbo, whisper-large-v3-turbo
+  - type: dropdown
+    id: build
+    attributes:
+      label: How did you install Abe?
+      options:
+        - Official release from GitHub
+        - Built from source
+  - type: textarea
+    id: logs
+    attributes:
+      label: Logs and error messages
+      description: Paste any error message Abe showed. Check that it contains no API keys first.
+      render: text
+  - type: textarea
+    id: context
+    attributes:
+      label: Anything else?
+      description: Screenshots, the app you were dictating into, your microphone, and so on.

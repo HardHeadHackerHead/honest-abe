@@ -1,0 +1,68 @@
+---
+/**
+ * Decorative keycaps drifting around the final CTA: a light reimagining of the
+ * old "exploding keyboard". Pure CSS; static when reduced motion is requested.
+ */
+const caps = [
+  { k: 'Ctrl', x: 6, y: 18, r: -12, d: 0 },
+  { k: 'Alt', x: 15, y: 70, r: 9, d: 1.2 },
+  { k: 'Space', x: 78, y: 14, r: 7, d: 0.6, w: true },
+  { k: 'A', x: 88, y: 62, r: -8, d: 1.8 },
+  { k: 'B', x: 70, y: 82, r: 14, d: 2.4 },
+  { k: 'E', x: 26, y: 40, r: -4, d: 3 },
+  { k: '⌘', x: 92, y: 32, r: 10, d: 0.9 },
+  { k: 'T', x: 4, y: 52, r: 6, d: 2.1 },
+  { k: 'V', x: 60, y: 6, r: -10, d: 1.5 },
+  { k: '⏎', x: 34, y: 86, r: 12, d: 2.7, w: true },
+];
+---
+
+<div class="keycaps" aria-hidden="true">
+  {
+    caps.map((c) => (
+      <span
+        class:list={['cap', c.w && 'wide']}
+        style={`left:${c.x}%;top:${c.y}%;--r:${c.r}deg;animation-delay:-${c.d}s`}
+      >
+        {c.k}
+      </span>
+    ))
+  }
+</div>
+
+<style>
+  .keycaps {
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    mask-image: radial-gradient(70% 70% at 50% 50%, transparent 30%, black 75%);
+    -webkit-mask-image: radial-gradient(70% 70% at 50% 50%, transparent 30%, black 75%);
+  }
+  .cap {
+    position: absolute;
+    display: grid;
+    place-items: center;
+    width: 3.2rem;
+    height: 3.2rem;
+    border-radius: 0.75rem;
+    background: linear-gradient(180deg, #32353c, #272a31);
+    box-shadow: inset 0 -4px 0 rgb(0 0 0 / 0.35), inset 0 1px 0 rgb(255 255 255 / 0.06), 0 12px 30px rgb(3 8 22 / 0.5);
+    color: var(--abe-outline);
+    font: 600 0.85rem var(--abe-font-mono);
+    transform: rotate(var(--r));
+    animation: drift 9s ease-in-out infinite;
+    opacity: 0.85;
+  }
+  .cap.wide { width: 5.4rem; }
+  @keyframes drift {
+    0%, 100% { transform: translate(0, 0) rotate(var(--r)); }
+    50% { transform: translate(6px, -14px) rotate(calc(var(--r) * -1)); }
+  }
+  @media (max-width: 640px) {
+    .cap { width: 2.5rem; height: 2.5rem; font-size: 0.7rem; }
+    .cap.wide { width: 4rem; }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .cap { animation: none; }
+  }
+</style>

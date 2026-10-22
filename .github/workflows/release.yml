@@ -1,0 +1,196 @@
+name: Release
+
+# Builds the official release for every platform with the auto-updater enabled,
+# then uploads the installers and a single latest.json to a draft release.
+#
+# Secrets:
+#   TAURI_SIGNING_PRIVATE_KEY, TAURI_SIGNING_PRIVATE_KEY_PASSWORD (required)
+#   APPLE_CERTIFICATE, APPLE_CERTIFICATE_PASSWORD, APPLE_SIGNING_IDENTITY,
+#   APPLE_ID, APPLE_PASSWORD, APPLE_TEAM_ID (optional: macOS signing and
+#   notarization; without them the macOS build is unsigned)
+# Windows builds from CI are not Authenticode-signed (QwickCert runs locally,
+# see scripts/build-release.ps1).
+# Linux isn't published for 1.0; ci.yml still compiles and tests it.
+
+on:
+  workflow_dispatch:
+    inputs:
+      version:
+        description: 'Version to release (must match tauri.conf.json, e.g. 1.0.0)'
+        required: true
+
+permissions:
+  contents: write
+
+jobs:
+  build:
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          # Local Whisper (whisper-rs) builds whisper.cpp with CMake and needs
+          # libclang for bindgen. The Windows and macOS runners ship both.
+          - platform: windows-latest
+            target: x86_64-pc-windows-msvc
+            bundles: nsis
+            features: updater
+          - platform: macos-latest
+            target: aarch64-apple-darwin
+            bundles: app,dmg
+            features: updater,metal
+          - platform: macos-latest
+            target: x86_64-apple-darwin
+            bundles: app,dmg
+            features: updater
+    runs-on: ${{ matrix.platform }}
+    # The version input is user-supplied, so scripts read it from $VERSION
+    # instead of interpolating the expression into the script (injection).
+    env:
+      VERSION: ${{ inputs.version }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Check version
+        shell: bash
+        run: |
+          if ! [[ "$VERSION" =~ ^[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
+            echo "Version must look like 1.2.3, got: $VERSION"
+            exit 1
+          fi
+          CONF_VERSION=$(node -p "require('./src-tauri/tauri.conf.json').version")
+          if [ "$CONF_VERSION" != "$VERSION" ]; then
+            echo "tauri.conf.json is at $CONF_VERSION, not $VERSION"
+            exit 1
+          fi
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+
+      - name: Setup Rust
+        uses: dtolnay/rust-toolchain@stable
+        with:
+          targets: ${{ matrix.target }}
+
+      - name: Rust cache
+        uses: Swatinem/rust-cache@v2
+        with:
+          workspaces: src-tauri
+          key: ${{ matrix.target }}
+
+      - name: Install dependencies
+        run: npm ci
+
+      # Only export the Apple variables that are actually set: Tauri treats an
+      # empty APPLE_SIGNING_IDENTITY as an identity and fails to sign.
+      - name: Configure Apple signing
+        if: runner.os == 'macOS'
+        shell: bash
+        env:
+          APPLE_CERTIFICATE: ${{ secrets.APPLE_CERTIFICATE }}
+          APPLE_CERTIFICATE_PASSWORD: ${{ secrets.APPLE_CERTIFICATE_PASSWORD }}
+          APPLE_SIGNING_IDENTITY: ${{ secrets.APPLE_SIGNING_IDENTITY }}
+          APPLE_ID: ${{ secrets.APPLE_ID }}
+          APPLE_PASSWORD: ${{ secrets.APPLE_PASSWORD }}
+          APPLE_TEAM_ID: ${{ secrets.APPLE_TEAM_ID }}
+        run: |
+          for VAR in APPLE_CERTIFICATE APPLE_CERTIFICATE_PASSWORD APPLE_SIGNING_IDENTITY APPLE_ID APPLE_PASSWORD APPLE_TEAM_ID; do
+            if [ -n "${!VAR}" ]; then
+              { echo "$VAR<<__APPLE_EOF__"; echo "${!VAR}"; echo "__APPLE_EOF__"; } >> "$GITHUB_ENV"
+            fi
+          done
+
+      - name: Build
+        shell: bash
+        env:
+          TAURI_SIGNING_PRIVATE_KEY: ${{ secrets.TAURI_SIGNING_PRIVATE_KEY }}
+          TAURI_SIGNING_PRIVATE_KEY_PASSWORD: ${{ secrets.TAURI_SIGNING_PRIVATE_KEY_PASSWORD }}
+        run: >
+          npx tauri build
+          --target ${{ matrix.target }}
+          --bundles ${{ matrix.bundles }}
+          --features ${{ matrix.features }}
+          --config '{"bundle":{"createUpdaterArtifacts":true}}'
+
+      # Version-less asset names: the website links to releases/latest/download/<asset>.
+      - name: Collect release assets
+        shell: bash
+        run: |
+          B="src-tauri/target/${{ matrix.target }}/release/bundle"
+          V="$VERSION"
+          mkdir -p out
+          case "${{ matrix.target }}" in
+            x86_64-pc-windows-msvc)
+              cp "$B/nsis/Abe_${V}_x64-setup.exe" out/Abe-windows-x64-setup.exe
+              cp "$B/nsis/Abe_${V}_x64-setup.exe.sig" out/windows-x86_64.sig
+              ;;
+            aarch64-apple-darwin)
+              cp "$B/dmg/Abe_${V}_aarch64.dmg" out/Abe-macos-arm64.dmg
+              cp "$B/macos/Abe.app.tar.gz" out/Abe-macos-arm64.app.tar.gz
+              cp "$B/macos/Abe.app.tar.gz.sig" out/darwin-aarch64.sig
+              ;;
+            x86_64-apple-darwin)
+              cp "$B/dmg/Abe_${V}_x64.dmg" out/Abe-macos-x64.dmg
+              cp "$B/macos/Abe.app.tar.gz" out/Abe-macos-x64.app.tar.gz
+              cp "$B/macos/Abe.app.tar.gz.sig" out/darwin-x86_64.sig
+              ;;
+          esac
+          ls -la out
+
+      - name: Upload build artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: ${{ matrix.target }}
+          path: out/*
+          if-no-files-found: error
+
+  publish:
+    needs: build
+    runs-on: ubuntu-latest
+    env:
+      VERSION: ${{ inputs.version }}
+    steps:
+      - name: Download build artifacts
+        uses: actions/download-artifact@v4
+        with:
+          path: assets
+          merge-multiple: true
+
+      - name: Write latest.json
+        run: |
+          V="$VERSION"
+          BASE="https://github.com/$GITHUB_REPOSITORY/releases/download/v$V"
+          jq -n \
+            --arg v "$V" \
+            --arg date "$(date -u +%Y-%m-%dT%H:%M:%SZ)" \
+            --arg base "$BASE" \
+            --rawfile win assets/windows-x86_64.sig \
+            --rawfile mac_arm assets/darwin-aarch64.sig \
+            --rawfile mac_x64 assets/darwin-x86_64.sig \
+            '{
+              version: $v,
+              notes: ("Abe v" + $v),
+              pub_date: $date,
+              platforms: {
+                "windows-x86_64": { signature: ($win | rtrimstr("\n")), url: ($base + "/Abe-windows-x64-setup.exe") },
+                "darwin-aarch64": { signature: ($mac_arm | rtrimstr("\n")), url: ($base + "/Abe-macos-arm64.app.tar.gz") },
+                "darwin-x86_64": { signature: ($mac_x64 | rtrimstr("\n")), url: ($base + "/Abe-macos-x64.app.tar.gz") }
+              }
+            }' > assets/latest.json
+          rm assets/*.sig
+          cat assets/latest.json
+          ls -la assets
+
+      - name: Upload to draft release
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          V="$VERSION"
+          REPO="$GITHUB_REPOSITORY"
+          if ! gh release view "v$V" --repo "$REPO" > /dev/null 2>&1; then
+            gh release create "v$V" --repo "$REPO" --title "Abe v$V" --notes "Abe v$V" --draft
+          fi
+          gh release upload "v$V" assets/* --repo "$REPO" --clobber

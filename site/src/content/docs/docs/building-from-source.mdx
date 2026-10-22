@@ -1,0 +1,87 @@
+---
+title: Building from source
+description: Build and run Abe yourself on Windows, macOS or Linux.
+---
+
+import { Steps, Tabs, TabItem } from '@astrojs/starlight/components';
+
+Abe is a [Tauri 2](https://v2.tauri.app/) app: a Rust backend with a React and TypeScript interface. Building it yourself takes a few minutes once the prerequisites are installed.
+
+## Prerequisites
+
+- **Node.js 20 or later** (with npm)
+- **Rust**, stable toolchain, via [rustup](https://rustup.rs/)
+- The **Tauri 2 system dependencies** for your OS:
+
+<Tabs syncKey="os">
+<TabItem label="Windows">
+
+- [Microsoft C++ Build Tools](https://visualstudio.microsoft.com/visual-cpp-build-tools/) with the **Desktop development with C++** workload
+- **WebView2** runtime (already installed on Windows 11; the [Evergreen bootstrapper](https://developer.microsoft.com/microsoft-edge/webview2/) covers Windows 10)
+- Rust with the MSVC toolchain: `rustup default stable-msvc`
+
+</TabItem>
+<TabItem label="macOS">
+
+- Xcode Command Line Tools: `xcode-select --install`
+
+</TabItem>
+<TabItem label="Linux">
+
+On Debian or Ubuntu:
+
+```sh
+sudo apt update
+sudo apt install libwebkit2gtk-4.1-dev build-essential curl wget file \
+  libxdo-dev libssl-dev libayatana-appindicator3-dev librsvg2-dev libasound2-dev
+```
+
+Other distributions: see the [Tauri prerequisites](https://v2.tauri.app/start/prerequisites/#linux). `libasound2-dev` (ALSA) is needed for audio capture.
+
+</TabItem>
+</Tabs>
+
+The [official Tauri prerequisites guide](https://v2.tauri.app/start/prerequisites/) has full details for every platform.
+
+## Build and run
+
+<Steps>
+
+1. Clone the repository:
+
+   ```sh
+   git clone https://github.com/HardHeadHackerHead/honest-abe.git
+   cd honest-abe
+   ```
+
+2. Install JavaScript dependencies:
+
+   ```sh
+   npm install
+   ```
+
+3. Run in development mode, with hot reload for the interface:
+
+   ```sh
+   npm run tauri dev
+   ```
+
+   The first run compiles the Rust backend and takes a while. Later runs are much faster.
+
+4. Build an installer for your platform:
+
+   ```sh
+   npm run tauri build
+   ```
+
+   Output lands in `src-tauri/target/release/bundle/`.
+
+</Steps>
+
+## Notes
+
+- **Code signing:** your own builds are unsigned, so Windows SmartScreen and macOS Gatekeeper will warn the first time you open them. That's expected.
+- **Updates:** builds from source have the auto-updater off by default, so they never try to replace themselves with official binaries.
+- **macOS permissions** are granted per app bundle. A dev build counts as a different app from the installed release, so macOS asks for Microphone, Accessibility and Input Monitoring again.
+
+Ready to change something? See [Contributing](/docs/contributing).

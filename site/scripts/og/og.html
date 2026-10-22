@@ -1,0 +1,74 @@
+<!doctype html>
+<!--
+  Source for public/og.png (1200x630). Render it with any headless browser, e.g.
+  npx playwright screenshot --viewport-size=1200,630 scripts/og/og.html public/og.png
+-->
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<title>Abe OG image</title>
+<style>
+  @font-face {
+    font-family: 'Inter Variable';
+    src: url('../../node_modules/@fontsource-variable/inter/files/inter-latin-wght-normal.woff2') format('woff2');
+    font-weight: 100 900;
+  }
+  * { margin: 0; box-sizing: border-box; }
+  html, body { width: 1200px; height: 630px; overflow: hidden; }
+  body {
+    font-family: 'Inter Variable', system-ui, sans-serif;
+    background:
+      radial-gradient(50% 70% at 85% 10%, rgb(80 142 255 / 0.28), transparent 70%),
+      radial-gradient(40% 50% at 95% 95%, rgb(78 222 163 / 0.14), transparent 70%),
+      #10131a;
+    color: #c2c6d6;
+    padding: 72px 80px;
+    position: relative;
+  }
+  body::after {
+    content: '';
+    position: absolute; inset: 0;
+    background-image: radial-gradient(rgb(140 144 159 / 0.14) 1px, transparent 1px);
+    background-size: 28px 28px;
+    -webkit-mask-image: radial-gradient(60% 70% at 80% 30%, black, transparent 75%);
+  }
+  .brand { display: flex; align-items: center; gap: 18px; position: relative; z-index: 1; }
+  .brand img { width: 64px; height: 64px; border-radius: 14px; }
+  .brand span { font-size: 34px; font-weight: 650; color: #e1e2eb; letter-spacing: -0.02em; }
+  h1 {
+    position: relative; z-index: 1;
+    margin-top: 64px;
+    font-size: 88px; line-height: 1.02; letter-spacing: -0.045em; font-weight: 650; color: #e1e2eb;
+  }
+  h1 em {
+    font-style: normal; display: block;
+    background: linear-gradient(100deg, #c4d5ff 0%, #8fb2ff 45%, #5d93ff 80%, #4edea3 120%);
+    -webkit-background-clip: text; color: transparent;
+  }
+  p { position: relative; z-index: 1; margin-top: 34px; font-size: 28px; }
+  .pill {
+    position: absolute; z-index: 1; right: 80px; top: 84px;
+    display: flex; align-items: center; gap: 14px;
+    padding: 16px 26px; border-radius: 999px;
+    background: rgb(29 32 38 / 0.9);
+    box-shadow: 0 0 0 1px rgb(174 198 255 / 0.3), 0 0 50px rgb(80 142 255 / 0.25);
+  }
+  .dot { width: 14px; height: 14px; border-radius: 99px; background: #ffb4ab; box-shadow: 0 0 0 6px rgb(255 180 171 / 0.2); }
+  .bars { display: flex; gap: 4px; align-items: center; height: 30px; }
+  .bars i { width: 5px; border-radius: 3px; background: #aec6ff; }
+  .pill b { font-size: 22px; color: #e1e2eb; font-weight: 600; }
+</style>
+</head>
+<body>
+  <div class="brand"><img src="../../public/icon-192.png" alt="" /><span>Abe</span></div>
+  <div class="pill">
+    <span class="dot"></span>
+    <span class="bars">
+      <i style="height:30%"></i><i style="height:70%"></i><i style="height:45%"></i><i style="height:95%"></i><i style="height:60%"></i><i style="height:80%"></i><i style="height:35%"></i><i style="height:65%"></i><i style="height:25%"></i><i style="height:50%"></i>
+    </span>
+    <b>Recording</b>
+  </div>
+  <h1>Talk anywhere.<em>Free, open source, private.</em></h1>
+  <p>Voice-to-text for your desktop. Local Whisper or your own API key.</p>
+</body>
+</html>

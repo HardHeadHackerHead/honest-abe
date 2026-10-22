@@ -1,0 +1,16 @@
+{
+  "$schema": "../gen/schemas/desktop-schema.json",
+  "identifier": "overlay-interaction",
+  "description": "Draggable pill above the overlay: moves both overlay windows and shows or hides itself.",
+  "windows": ["overlay-interaction"],
+  "permissions": [
+    "core:event:allow-listen",
+    "core:event:allow-unlisten",
+    "core:event:allow-emit",
+    "core:window:allow-show",
+    "core:window:allow-hide",
+    "allow-position-overlay",
+    "allow-set-window-size",
+    "allow-get-engine-status"
+  ]
+}

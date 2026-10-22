@@ -1,0 +1,57 @@
+---
+title: Getting an API key
+description: What an API key is, which provider to pick, and step-by-step guides for Groq, OpenAI and your own OpenAI-compatible server.
+---
+
+import { CardGrid, LinkCard } from '@astrojs/starlight/components';
+
+An **API key** is a long password that lets Abe use a transcription service on your behalf. You create it on the provider's website, paste it into Abe once, and you're done. Abe never sees your bill and takes no cut: you pay the provider directly, at their list price, for the audio you send.
+
+You don't need a key at all if you'd rather use [Local mode](/docs/local-models), which is free and works offline.
+
+## Which provider should I pick?
+
+**We recommend Groq.** It's very fast, it's the cheapest (about 4 cents per hour of talking), and you can start on its free plan: a payment method is only requested if you upgrade.
+
+<CardGrid>
+  <LinkCard title="Groq (recommended)" description="Free plan to start. Takes about 5 minutes." href="/docs/api-keys/groq" />
+  <LinkCard title="OpenAI" description="Pay as you go, from $5 of prepaid credit. Takes about 10 minutes." href="/docs/api-keys/openai" />
+  <LinkCard title="Custom endpoint" description="Your own server, Ollama, OpenRouter or any OpenAI-compatible service." href="/docs/api-keys/custom" />
+</CardGrid>
+
+| | **Groq** (recommended) | **OpenAI** | **Custom** |
+|---|---|---|---|
+| Cost to start | Free plan; card only if you upgrade | At least $5 of prepaid credit | Depends on the service |
+| Transcription model | `whisper-large-v3-turbo` | `gpt-transcribe` | Whatever your server offers |
+| Transcription price | $0.04 per hour | $0.27 per hour | Depends |
+| Voice Transform model | `openai/gpt-oss-120b` | `gpt-6-luna` | Any chat model, for example through Ollama |
+| Monthly spend limit | Yes, on the paid plan | Yes | Depends |
+
+Prices are list prices as of October 2026. See [Costs](/docs/costs) for every model and a calculator.
+
+## Voice Transform needs a chat model
+
+[Voice Transform](/docs/voice-transform) rewrites text you've selected, which needs a language model, not just speech recognition. **Voice Transform always uses a cloud or custom provider, even when you transcribe locally.** You have three options:
+
+- **Groq** with `openai/gpt-oss-120b` (recommended): fast, and a fraction of a cent per transform.
+- **OpenAI** with `gpt-6-luna`.
+- **Custom**: any OpenAI-compatible chat endpoint, such as [Ollama](https://ollama.com/) on your own computer (keeps everything offline) or [OpenRouter](https://openrouter.ai/).
+
+Each guide shows how to set this up.
+
+## Where your key is stored
+
+Abe stores your key in your operating system's secure credential store, never in a plain settings file:
+
+- **Windows:** Credential Manager
+- **macOS:** Keychain
+
+The key is handled by Abe's native backend and is only ever sent to the provider it belongs to, over HTTPS. You can remove it any time in **Settings** with **Remove**, or from your OS credential manager.
+
+## Keep your key safe
+
+- Treat a key like a password. Don't paste it into emails, chats or websites you don't trust.
+- Set a monthly spend limit with your provider. Dictation is cheap, so a small limit is plenty, and it protects you if a key ever leaks.
+- If you think a key was exposed, delete it in the provider's dashboard and create a new one. Each guide explains how.
+
+If something goes wrong, see the troubleshooting section of your provider's guide or the general [Troubleshooting](/docs/troubleshooting#api-key-errors) page.

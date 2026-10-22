@@ -1,0 +1,71 @@
+---
+import LegalLayout from '../layouts/LegalLayout.astro';
+import { CONTACT_EMAIL, GITHUB_URL, LICENSE_URL } from '../config/site';
+---
+
+<LegalLayout
+  title="Terms"
+  description="Terms for the Abe software, donations and the getabe.app website."
+  updated="2026-10-22"
+>
+  <p>
+    These terms cover the Abe desktop app, donations, and this website (getabe.app). Abe is maintained by Quads Lab
+    ("we", "us").
+  </p>
+
+  <h2>1. The software</h2>
+  <p>
+    Abe is free software. You can use, study, share and modify it under the
+    <a href={LICENSE_URL}>GNU Affero General Public License, version 3 or any later version</a> (AGPL-3.0-or-later). The
+    license, published with the <a href={GITHUB_URL}>source code</a>, is the agreement that governs your use of the
+    software. Nothing on this page limits the rights it gives you.
+  </p>
+
+  <h3>No warranty</h3>
+  <p>
+    As the license states, Abe is provided <strong>"as is", without warranty of any kind</strong>, express or implied,
+    including the implied warranties of merchantability and fitness for a particular purpose. The entire risk as to the
+    quality and performance of the program is with you. To the extent permitted by applicable law, in no event will
+    Quads Lab or any contributor be liable to you for damages arising out of the use or inability to use the program.
+    See sections 15 and 16 of the license for the full text.
+  </p>
+
+  <h3>Transcriptions and third-party providers</h3>
+  <p>
+    Speech recognition and text transformation can be wrong. Check important text before you send it. If you use a
+    cloud provider, you do so under your own account with that provider, under its terms and pricing, and you are
+    responsible for the charges on your API key. We recommend setting a spend limit with your provider.
+  </p>
+
+  <h2>2. Name and logo</h2>
+  <p>
+    "Abe" and the Abe logo are trademarks of Quads Lab. The AGPL covers the code, not the brand. You're welcome to fork
+    and redistribute Abe, but please give modified versions a different name and logo so people don't confuse them with
+    the official app. Saying your project is "based on Abe" is fine.
+  </p>
+
+  <h2>3. Donations</h2>
+  <p>
+    Donations are voluntary gifts to support Abe's development. They don't buy goods, services, support or any feature,
+    and Abe is the same whether or not you donate. Donations are <strong>not tax-deductible</strong> and are
+    <strong>non-refundable</strong>. Payments are processed by Stripe. If you believe a payment was made in error, email
+    <a href={`mailto:${CONTACT_EMAIL}`}>{CONTACT_EMAIL}</a>.
+  </p>
+
+  <h2>4. This website</h2>
+  <ul>
+    <li>The site's content is provided for information only and may change at any time. Prices shown for third-party providers are their published list prices at the date stated and may be out of date.</li>
+    <li>Links to other sites are provided for convenience; we're not responsible for their content.</li>
+    <li>Please don't attempt to disrupt the site or use it for anything unlawful.</li>
+    <li>The site's source code is part of the Abe repository and available under the same license. Text and images, other than the Abe name and logo, may be reused with attribution.</li>
+  </ul>
+
+  <h2>5. Privacy</h2>
+  <p>See the <a href="/privacy">privacy policy</a>. In short: no accounts, no telemetry, no cookies.</p>
+
+  <h2>6. Changes and contact</h2>
+  <p>
+    We may update these terms; the date at the top will change when we do. Questions:
+    <a href={`mailto:${CONTACT_EMAIL}`}>{CONTACT_EMAIL}</a>.
+  </p>
+</LegalLayout>

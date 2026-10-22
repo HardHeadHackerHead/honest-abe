@@ -1,0 +1,53 @@
+---
+title: Local Whisper models
+description: Which Whisper model to use for offline transcription, and what to expect in size, speed and accuracy.
+---
+
+In Local mode, Abe runs [OpenAI's open-source Whisper](https://github.com/openai/whisper) speech recognition model on your own computer. Nothing is uploaded, and you don't need an API key or an account.
+
+## How downloading works
+
+- Abe offers four models: **Tiny**, **Base** (the default), **Small** and **Large v3 Turbo**.
+- A model is downloaded the first time you use it, with a progress bar in Abe. After that it works fully offline.
+- Models are stored in Abe's app data folder on your computer, not in your Documents or Downloads.
+- Abe checks each download's integrity before using it, so a broken or tampered file is never loaded. If a download fails, just try again.
+
+## The models
+
+| Model | Download size | Speed | Accuracy | Good for |
+|---|---|---|---|---|
+| **Tiny** | ~75 MB | Fastest | Basic | Older machines, quick notes, short commands |
+| **Base** (default) | ~150 MB | Very fast | Fair | Everyday dictation on modest hardware |
+| **Small** | ~470 MB | Fast | Good | A strong default for most computers |
+| **Large v3 Turbo** | ~1.6 GB | Slower on CPU, fast on GPU / Apple Silicon | Best | The best accuracy, especially with accents, names and technical terms |
+
+Sizes are approximate. Bigger models are more accurate and handle accents, background noise and unusual words better, but they need more memory and take longer to process each recording.
+
+## Which one should I pick?
+
+- **Not sure?** Keep the default, **Base**, and move up a size if you want better accuracy.
+- **Apple Silicon Mac (M1 or later):** Large v3 Turbo usually feels quick thanks to GPU acceleration. Start there.
+- **Windows PC with a recent dedicated GPU:** Large v3 Turbo, if GPU acceleration is available in your build.
+- **Recent laptop, CPU only:** Small. Try Large v3 Turbo and see if the delay bothers you.
+- **Older or low-power machine:** Base or Tiny, or consider [Cloud mode](/docs/choosing-an-engine).
+
+You can change models at any time in **Settings → Transcription**. Each model is downloaded the first time you select it.
+
+## Speed and hardware notes
+
+- Processing happens **after** you release the hotkey, so the wait grows with the length of what you said. Short phrases are near-instant on most hardware with the smaller models.
+- Whisper benefits greatly from a **GPU**. On Macs, Apple Silicon's GPU is used automatically. On Windows, GPU support depends on how Abe was built; CPU always works.
+- Expect memory use roughly in line with the model size, plus some working memory. Large v3 Turbo is comfortable with 8 GB of RAM or more.
+- Transcribing on battery uses more power with larger models.
+
+## Languages
+
+Whisper models are multilingual. Set your language in **Settings** for the best results, or leave it on auto-detect if you switch between languages.
+
+## Voice Transform in Local mode
+
+Local mode covers dictation. [Voice Transform](/docs/voice-transform) needs a language model, so it always uses a cloud or custom provider, even when you transcribe locally. Use a [Groq key](/docs/api-keys/groq) (recommended), an [OpenAI key](/docs/api-keys/openai), or [Ollama on your own computer](/docs/api-keys/custom) to keep everything offline.
+
+## Privacy
+
+In Local mode your audio is processed in memory on your computer and is never sent anywhere. The only network request is the model download itself.

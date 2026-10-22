@@ -1,0 +1,46 @@
+---
+/**
+ * OS-aware primary download button. Renders a Windows link by default (most
+ * visitors) and a tiny script retargets it for macOS. Platforms marked
+ * `comingSoon` keep the default. Without JS it
+ * still works and the note links to all platforms.
+ */
+import Icon from './Icon.astro';
+import { DOWNLOAD_ASSETS, downloadUrl } from '../config/site';
+
+interface Props {
+  version?: string | null;
+  size?: 'lg' | 'md';
+  class?: string;
+}
+const { version, size = 'lg', class: className } = Astro.props;
+
+const primaries = Object.fromEntries(
+  DOWNLOAD_ASSETS.filter((a) => a.primary && !a.comingSoon).map((a) => [a.os, { href: downloadUrl(a.file), label: a.label, variant: a.variant }]),
+);
+const win = primaries.windows;
+---
+
+<div class:list={['dl-button flex w-full flex-col items-stretch gap-2 sm:w-auto sm:items-start', className]} data-targets={JSON.stringify(primaries)}>
+  <a href={win.href} class:list={['btn btn-primary', size === 'lg' && '!min-h-[3.4rem] !px-6 !text-base']} data-dl-link>
+    <Icon name="download" size={size === 'lg' ? 20 : 18} />
+    <span>Download for <span data-dl-os>{win.label}</span></span>
+  </a>
+  <p class="text-xs text-outline" data-dl-note>
+    {version ? `v${version} · ` : ''}<span data-dl-variant>{win.variant}</span>{' · '}<a href="/download" class="underline underline-offset-2 hover:text-on-surface">Other platforms</a>
+  </p>
+</div>
+
+<script>
+  import { detectOS } from '../lib/platform';
+
+  const os = detectOS();
+  document.querySelectorAll<HTMLElement>('.dl-button').forEach((el) => {
+    const targets = JSON.parse(el.dataset.targets || '{}');
+    const t = os && targets[os];
+    if (!t) return;
+    el.querySelector<HTMLAnchorElement>('[data-dl-link]')!.href = t.href;
+    el.querySelector('[data-dl-os]')!.textContent = t.label;
+    el.querySelector('[data-dl-variant]')!.textContent = t.variant;
+  });
+</script>

@@ -1,0 +1,72 @@
+---
+import GitHubIcon from './GitHubIcon.astro';
+import { GITHUB_URL, LICENSE_NAME, LICENSE_URL, ORG_NAME, CONTACT_EMAIL } from '../config/site';
+
+const year = new Date().getFullYear();
+const columns = [
+  {
+    title: 'Product',
+    links: [
+      { href: '/download', label: 'Download' },
+      { href: '/changelog', label: 'Changelog' },
+      { href: '/docs/costs', label: 'Costs' },
+      { href: '/donate', label: 'Donate' },
+    ],
+  },
+  {
+    title: 'Docs',
+    links: [
+      { href: '/docs/getting-started', label: 'Getting started' },
+      { href: '/docs/api-keys', label: 'Getting an API key' },
+      { href: '/docs/troubleshooting', label: 'Troubleshooting' },
+      { href: '/docs/building-from-source', label: 'Build from source' },
+    ],
+  },
+  {
+    title: 'Project',
+    links: [
+      { href: GITHUB_URL, label: 'Source code' },
+      { href: '/privacy', label: 'Privacy' },
+      { href: '/terms', label: 'Terms' },
+      { href: `mailto:${CONTACT_EMAIL}`, label: 'Contact' },
+    ],
+  },
+];
+---
+
+<footer class="mt-24 bg-surface-lowest">
+  <div class="mx-auto grid max-w-6xl gap-10 px-4 py-14 sm:px-6 md:grid-cols-[1.4fr_repeat(3,1fr)]">
+    <div class="max-w-xs">
+      <a href="/" class="inline-flex items-center gap-2.5 rounded-lg text-on-surface">
+        <img src="/logo.png" alt="" width="28" height="28" class="rounded-[0.5rem]" loading="lazy" />
+        <span class="font-semibold">Abe</span>
+      </a>
+      <p class="mt-4 text-sm leading-relaxed">
+        Free, open-source voice-to-text. No accounts, no servers, no subscription.
+      </p>
+      <a href={GITHUB_URL} class="mt-5 inline-flex items-center gap-2 text-sm text-on-surface-variant hover:text-on-surface">
+        <GitHubIcon size={16} /> Star on GitHub
+      </a>
+    </div>
+    {
+      columns.map((col) => (
+        <nav aria-label={col.title}>
+          <h2 class="label !text-outline">{col.title}</h2>
+          <ul class="mt-4 space-y-2.5">
+            {col.links.map((l) => (
+              <li>
+                <a href={l.href} class="text-sm text-on-surface-variant transition-colors hover:text-on-surface">
+                  {l.label}
+                </a>
+              </li>
+            ))}
+          </ul>
+        </nav>
+      ))
+    }
+  </div>
+  <div class="mx-auto flex max-w-6xl flex-col gap-2 px-4 pb-10 text-xs text-outline sm:flex-row sm:items-center sm:justify-between sm:px-6">
+    <p>&copy; {year} {ORG_NAME}. Abe is free software under the <a href={LICENSE_URL} class="underline underline-offset-2 hover:text-on-surface">{LICENSE_NAME}</a> license.</p>
+    <p>"Abe" and the Abe logo are trademarks of {ORG_NAME}.</p>
+  </div>
+</footer>

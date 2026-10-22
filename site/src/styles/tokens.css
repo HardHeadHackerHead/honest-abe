@@ -1,0 +1,56 @@
+/*
+ * Abe design tokens: the single source of truth for color, type and depth.
+ * Ported from the desktop app's tailwind.config.js (Material-3-style tonal
+ * palette) and the "Nocturnal Native / Digital Obsidian" direction.
+ * Tailwind (global.css) and Starlight (starlight.css) both read these.
+ */
+:root {
+  color-scheme: dark;
+
+  /* Surfaces: stacked sheets of obsidian, darkest to brightest */
+  --abe-surface-lowest: #0b0e14;
+  --abe-surface: #10131a;
+  --abe-surface-low: #191c22;
+  --abe-surface-container: #1d2026;
+  --abe-surface-high: #272a31;
+  --abe-surface-highest: #32353c;
+  --abe-surface-bright: #363940;
+
+  /* Primary */
+  --abe-primary: #aec6ff;
+  --abe-primary-container: #508eff;
+  --abe-primary-fixed: #d8e2ff;
+  --abe-on-primary: #001a43; /* darkest on-primary keeps AA on the gradient CTA */
+  --abe-inverse-primary: #005ac5;
+
+  /* Secondary */
+  --abe-secondary: #bec7db;
+  --abe-secondary-container: #40495a;
+
+  /* Tertiary: success / live */
+  --abe-tertiary: #4edea3;
+  --abe-tertiary-container: #00a572;
+  --abe-on-tertiary: #003824;
+
+  /* Error */
+  --abe-error: #ffb4ab;
+  --abe-error-container: #93000a;
+
+  /* Text */
+  --abe-on-surface: #e1e2eb;
+  --abe-on-surface-variant: #c2c6d6;
+  --abe-outline: #8c909f;
+  --abe-outline-variant: #424754;
+
+  /* Effects */
+  --abe-gradient-primary: linear-gradient(135deg, #c4d5ff 0%, #aec6ff 35%, #6f9fff 100%);
+  --abe-ghost-border: rgb(140 144 159 / 0.16);
+  --abe-glass: rgb(50 53 60 / 0.7);
+  --abe-shadow-ambient: 0 16px 64px rgb(4 10 28 / 0.45);
+  --abe-glow-primary: 0 10px 40px rgb(80 142 255 / 0.28);
+  --abe-glow-tertiary: 0 8px 32px rgb(78 222 163 / 0.18);
+
+  /* Type */
+  --abe-font-sans: 'Inter Variable', 'Inter', ui-sans-serif, system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
+  --abe-font-mono: 'JetBrains Mono Variable', 'JetBrains Mono', ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+}

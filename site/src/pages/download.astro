@@ -1,0 +1,260 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import Icon from '../components/Icon.astro';
+import GitHubIcon from '../components/GitHubIcon.astro';
+import { DOWNLOAD_ASSETS, downloadUrl, GITHUB_RELEASES_URL, type OS } from '../config/site';
+import { getLatestRelease, formatDate } from '../lib/github';
+
+const release = await getLatestRelease();
+
+const groups: { os: OS; name: string; icon: 'windows' | 'laptop' | 'terminal'; blurb: string }[] = [
+  { os: 'windows', name: 'Windows', icon: 'windows', blurb: 'Windows 10 or 11, 64-bit.' },
+  { os: 'macos', name: 'macOS', icon: 'laptop', blurb: 'macOS 10.15 Catalina or later.' },
+  { os: 'linux', name: 'Linux', icon: 'terminal', blurb: 'Coming soon. Not supported yet.' },
+];
+---
+
+<BaseLayout
+  title="Download"
+  description="Download Abe for Windows or macOS. Free and open source voice-to-text, with no account required."
+>
+  <section class="relative overflow-hidden" aria-labelledby="dl-title">
+    <div class="dl-bg" aria-hidden="true"></div>
+    <div class="relative mx-auto max-w-6xl px-4 pb-6 pt-16 sm:px-6 sm:pt-24">
+      <p class="label">Download</p>
+      <h1 id="dl-title" class="mt-3 text-4xl font-semibold tracking-[-0.035em] sm:text-6xl">Get Abe</h1>
+      <p class="mt-5 max-w-2xl text-lg leading-relaxed">
+        Free, open source, no account. Pick your platform below; we've highlighted the one you're on.
+      </p>
+      <p class="mt-4 text-sm text-outline" data-release>
+        {
+          release ? (
+            <>
+              Latest release <a href={release.url} class="font-medium text-primary hover:underline">v{release.version}</a>
+              {release.publishedAt && <> · {formatDate(release.publishedAt)}</>}
+            </>
+          ) : (
+            <>Always the latest release, straight from GitHub.</>
+          )
+        }
+      </p>
+    </div>
+  </section>
+
+  <section class="mx-auto max-w-6xl px-4 pt-6 sm:px-6" aria-label="Downloads">
+    <div class="grid gap-4 lg:grid-cols-3">
+      {
+        groups.map((g) => {
+          const assets = DOWNLOAD_ASSETS.filter((a) => a.os === g.os);
+          return (
+            <article class="os-card card flex flex-col p-7" data-os={g.os}>
+              <div class="flex items-center gap-3">
+                <span class="inline-flex h-11 w-11 items-center justify-center rounded-xl bg-surface-high text-on-surface">
+                  <Icon name={g.icon} size={22} />
+                </span>
+                <div>
+                  <h2 class="text-xl font-semibold">{g.name}</h2>
+                  <p class="text-sm text-outline">{g.blurb}</p>
+                </div>
+                <span class="detected ml-auto hidden shrink-0 whitespace-nowrap rounded-full bg-tertiary/15 px-2.5 py-1 text-[0.7rem] font-semibold uppercase tracking-wider text-tertiary">
+                  Your OS
+                </span>
+              </div>
+              <ul class="mt-7 flex flex-1 flex-col gap-3">
+                {assets.map((a) => (
+                  <li>
+                    {a.comingSoon ? (
+                      <span class="flex items-center gap-4 rounded-xl bg-surface-container px-4 py-3.5 text-outline" aria-disabled="true">
+                        <Icon name="download" size={18} class="shrink-0 opacity-50" />
+                        <span class="min-w-0 flex-1">
+                          <span class="block font-semibold">{a.variant}</span>
+                          <span class="block truncate font-mono text-xs opacity-80">{a.format}</span>
+                        </span>
+                        <span class="shrink-0 whitespace-nowrap rounded-full bg-surface-high px-2.5 py-1 text-[0.7rem] font-semibold uppercase tracking-wider text-on-surface-variant">
+                          Coming soon
+                        </span>
+                      </span>
+                    ) : (
+                    <a
+                      href={downloadUrl(a.file)}
+                      class:list={['asset group flex items-center gap-4 rounded-xl px-4 py-3.5 transition-colors', a.primary ? 'asset-primary' : 'bg-surface-container hover:bg-surface-high']}
+                    >
+                      <Icon name="download" size={18} class="shrink-0" />
+                      <span class="min-w-0 flex-1">
+                        <span class="block font-semibold">{a.variant}</span>
+                        <span class="block truncate font-mono text-xs opacity-80">{a.file}</span>
+                      </span>
+                    </a>
+                    )}
+                  </li>
+                ))}
+              </ul>
+            </article>
+          );
+        })
+      }
+    </div>
+    <div class="mt-6 flex flex-wrap gap-x-6 gap-y-3 text-sm">
+      <a href={GITHUB_RELEASES_URL} class="inline-flex items-center gap-2 text-primary hover:underline">
+        <GitHubIcon size={16} /> All releases and checksums
+      </a>
+      <a href="/docs/building-from-source" class="inline-flex items-center gap-2 text-primary hover:underline">
+        <Icon name="terminal" size={16} /> Build from source
+      </a>
+      <a href="/changelog" class="inline-flex items-center gap-2 text-primary hover:underline">
+        <Icon name="history" size={16} /> What's new
+      </a>
+    </div>
+  </section>
+
+  <section class="mx-auto mt-24 max-w-6xl px-4 sm:px-6" aria-labelledby="first-run">
+    <p class="label">First run</p>
+    <h2 id="first-run" class="mt-3 text-3xl font-semibold tracking-[-0.03em] sm:text-4xl">Getting past the security prompts</h2>
+    <p class="mt-4 max-w-2xl text-lg leading-relaxed">
+      Abe needs to hear your microphone and type into other apps, so your OS will ask you to confirm a few things the
+      first time.
+    </p>
+
+    <div class="mt-10 grid gap-4 lg:grid-cols-3">
+      <article class="card p-7" data-os-note="windows">
+        <h3 class="flex items-center gap-2 text-lg font-semibold"><Icon name="windows" size={18} /> Windows SmartScreen</h3>
+        <div class="prose-abe text-[0.95rem]">
+          <p>
+            New releases can show <strong>"Windows protected your PC"</strong> until they build up reputation with Microsoft.
+            Click <strong>More info</strong>, check that the publisher is correct, then <strong>Run anyway</strong>.
+          </p>
+          <p>
+            No administrator rights are needed. The installer sets up Microsoft's WebView2 runtime if it's missing;
+            Windows 11 already has it.
+          </p>
+        </div>
+      </article>
+      <article class="card p-7" data-os-note="macos">
+        <h3 class="flex items-center gap-2 text-lg font-semibold"><Icon name="laptop" size={18} /> macOS Gatekeeper and permissions</h3>
+        <div class="prose-abe text-[0.95rem]">
+          <p>Open the .dmg and drag Abe to Applications. On first launch, allow:</p>
+          <ul>
+            <li><strong>Microphone</strong>, to hear you.</li>
+            <li><strong>Accessibility</strong>, to paste or type into other apps.</li>
+            <li><strong>Input Monitoring</strong>, to notice your global hotkey.</li>
+            <li><strong>Automation</strong>, to paste text into other applications.</li>
+          </ul>
+          <p>
+            Find them under System Settings → Privacy &amp; Security. If macOS says the app can't be opened, right-click
+            Abe in Applications and choose <strong>Open</strong>.
+          </p>
+        </div>
+      </article>
+      <article class="card p-7" data-os-note="linux">
+        <h3 class="flex items-center gap-2 text-lg font-semibold"><Icon name="terminal" size={18} /> Linux</h3>
+        <div class="prose-abe text-[0.95rem]">
+          <p>
+            <strong>Coming soon.</strong> Linux isn't supported yet, so there's no Linux download for now. Watch the{" "}
+            <a href={GITHUB_RELEASES_URL}>releases on GitHub</a> to hear when it lands.
+          </p>
+        </div>
+      </article>
+    </div>
+
+    <article class="card mt-4 flex flex-col gap-6 p-7 md:flex-row md:items-center">
+      <span class="inline-flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-surface-high text-primary">
+        <Icon name="key" size={20} />
+      </span>
+      <div class="flex-1">
+        <h3 class="text-lg font-semibold">Then choose how Abe transcribes</h3>
+        <p class="mt-1.5 leading-relaxed">
+          The setup screen asks you to pick <strong class="text-on-surface">Local</strong> (offline, free, no key) or{" "}
+          <strong class="text-on-surface">Use my own API key</strong>. For a key, we recommend Groq: it's fast, cheap and
+          has a free tier. Our step-by-step guide takes about five minutes.
+        </p>
+      </div>
+      <div class="flex flex-wrap gap-3">
+        <a href="/docs/api-keys/groq" class="btn btn-primary">Get a Groq key</a>
+        <a href="/docs/api-keys" class="btn btn-ghost">All key guides</a>
+        <a href="/docs/local-models" class="btn btn-ghost">Local models</a>
+      </div>
+    </article>
+  </section>
+
+  <section class="mx-auto mt-24 max-w-6xl px-4 sm:px-6" aria-labelledby="reqs">
+    <p class="label">System requirements</p>
+    <h2 id="reqs" class="mt-3 text-3xl font-semibold tracking-[-0.03em] sm:text-4xl">What you need</h2>
+    <div class="mt-10 overflow-x-auto rounded-2xl bg-surface-low">
+      <table class="w-full min-w-[36rem] text-left text-sm">
+        <thead class="text-on-surface">
+          <tr>
+            <th scope="col" class="px-6 py-4 font-semibold"></th>
+            <th scope="col" class="px-6 py-4 font-semibold">Windows</th>
+            <th scope="col" class="px-6 py-4 font-semibold">macOS</th>
+            <th scope="col" class="px-6 py-4 font-semibold">Linux</th>
+          </tr>
+        </thead>
+        <tbody class="[&_tr:nth-child(odd)]:bg-surface-container/60">
+          <tr>
+            <th scope="row" class="px-6 py-4 font-medium text-on-surface">OS</th>
+            <td class="px-6 py-4">Windows 10 or 11 (x64)</td>
+            <td class="px-6 py-4">10.15 Catalina or later</td>
+            <td class="px-6 py-4">Coming soon</td>
+          </tr>
+          <tr>
+            <th scope="row" class="px-6 py-4 font-medium text-on-surface">Cloud mode</th>
+            <td class="px-6 py-4" colspan="3">Any recent computer, an internet connection and an API key</td>
+          </tr>
+          <tr>
+            <th scope="row" class="px-6 py-4 font-medium text-on-surface">Local mode</th>
+            <td class="px-6 py-4" colspan="3">
+              4 GB RAM for the small models, 8 GB or more for Large v3 Turbo. A recent GPU or Apple Silicon makes large
+              models much faster. <a href="/docs/local-models" class="text-primary hover:underline">Model guide</a>
+            </td>
+          </tr>
+          <tr>
+            <th scope="row" class="px-6 py-4 font-medium text-on-surface">Disk</th>
+            <td class="px-6 py-4" colspan="3">About 100 MB for the app, plus 75 MB to 1.6 GB for a local model</td>
+          </tr>
+          <tr>
+            <th scope="row" class="px-6 py-4 font-medium text-on-surface">Hardware</th>
+            <td class="px-6 py-4" colspan="3">A microphone. Any built-in or USB mic works; a headset helps in noisy rooms.</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+</BaseLayout>
+
+<style>
+  .dl-bg {
+    position: absolute;
+    inset: 0;
+    background: radial-gradient(50% 70% at 80% 0%, rgb(80 142 255 / 0.13), transparent 70%);
+  }
+  .asset-primary {
+    background: var(--abe-surface-high);
+    color: var(--abe-on-surface);
+  }
+  .asset-primary:hover {
+    background: var(--abe-surface-bright);
+  }
+  .os-card.is-current {
+    background: radial-gradient(90% 70% at 0% 0%, rgb(80 142 255 / 0.14), transparent 70%), var(--abe-surface-low);
+    box-shadow: 0 0 0 1px rgb(174 198 255 / 0.25), var(--abe-shadow-ambient);
+  }
+  .os-card.is-current .detected {
+    display: inline-flex;
+  }
+  .os-card.is-current .asset-primary {
+    background: var(--abe-gradient-primary);
+    color: var(--abe-on-primary);
+    box-shadow: var(--abe-glow-primary);
+  }
+  .os-card.is-current {
+    order: -1;
+  }
+</style>
+
+<script>
+  import { detectOS } from '../lib/platform';
+  const os = detectOS();
+  if (os) {
+    document.querySelector(`.os-card[data-os="${os}"]`)?.classList.add('is-current');
+  }
+</script>

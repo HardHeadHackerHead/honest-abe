@@ -1,0 +1,72 @@
+---
+title: Troubleshooting
+description: Fixes for the most common problems with permissions, hotkeys, microphones, API keys and pasting.
+---
+
+## The hotkey does nothing
+
+- **Check Abe is running.** Look for its icon in the system tray (Windows) or menu bar (macOS).
+- **Another app may own the shortcut.** Pick a different combination in **Settings → Shortcuts** and try again.
+- **macOS:** Abe needs **Input Monitoring** and **Accessibility** in **System Settings → Privacy & Security**. Toggle Abe off and on there, then quit and reopen Abe.
+- **Elevated apps on Windows:** if the app you're typing into runs as Administrator, Abe can't send it keystrokes unless Abe also runs as Administrator.
+
+## No audio, or "No voice detected"
+
+- Choose the right input in **Settings → Microphone** instead of Default Microphone.
+- **macOS:** allow Abe under **Privacy & Security → Microphone**.
+- **Windows:** **Settings → Privacy & security → Microphone** must allow desktop apps to access the microphone.
+- Speak a little louder or move closer. Abe skips recordings with no detectable voice so you aren't billed for silence.
+- Check that **Min Duration** isn't discarding short recordings.
+
+## Text doesn't appear in my app
+
+- Make sure the cursor is in a text field **before** you release the hotkey, and that the app is still focused.
+- **macOS:** Abe needs **Accessibility** and **Automation** permission to paste into other apps.
+- Some apps block pasting. Switch to **Typewriter** in **Settings → Advanced → Output → Typing Mode**.
+- If text went to the wrong window, press <kbd>Ctrl</kbd> + <kbd>Alt</kbd> + <kbd>V</kbd> to paste it again where you are now. Paste Last only remembers the latest transcription until Abe restarts; if it says **"No transcription to paste"**, copy the text from [History](/docs/history) instead.
+
+## Typewriter mode drops or scrambles characters
+
+Lower **Typing Speed**. Some apps, especially remote desktops and web editors, can't keep up with fast simulated typing.
+
+## API key errors
+
+Use **Test** in **Settings → Transcription** to check a key at any time. These are the messages Abe shows when a provider says no:
+
+| Abe says | What it means | Fix |
+|---|---|---|
+| "Your API key was rejected. Check it in Settings." | The key is wrong, incomplete, deleted, or for another provider | Paste the key again and check the right provider is selected, or create a new key |
+| "Your provider account is out of credit." | No credit left, or you reached your spend limit | Add credit or raise the limit with your provider |
+| "The provider is rate limiting you. Try again in a moment." | Too many requests in a short time | Wait a moment; on Groq's free plan, consider upgrading |
+| "The selected model is not available. Check Settings." | The model name is misspelled or has been retired | Check the model name in Settings (see your provider's guide) |
+| "This recording is too long for the provider." | The recording exceeds the provider's upload limit (25 MB for OpenAI and Groq's free plan) | Use shorter recordings or lower **Max Duration** |
+| "Couldn't reach the provider. Check your connection." | No connection, or a VPN, proxy or firewall is in the way | Check your connection; for Custom, check the base URL |
+| "The provider took too long to respond." | The provider is slow or overloaded | Try again in a moment |
+
+Step-by-step fixes for each provider: [Groq](/docs/api-keys/groq#troubleshooting), [OpenAI](/docs/api-keys/openai#troubleshooting), [Custom endpoint](/docs/api-keys/custom#troubleshooting).
+
+## Local mode is slow
+
+- Switch to a smaller model (**Small** or **Base**) in Settings.
+- Large models are much faster with GPU acceleration, which Apple Silicon Macs get automatically.
+- Keep recordings shorter; processing time grows with length.
+- See [Local Whisper models](/docs/local-models).
+
+## Voice Transform does nothing
+
+- Select text **before** pressing the transform hotkey.
+- Some apps don't allow copying the selection (for example certain PDFs or protected fields).
+- Selections longer than 10,000 characters are rejected.
+- Make sure a transform provider and key are configured. Voice Transform needs one even in Local mode; see [Voice Transform providers](/docs/voice-transform#providers).
+
+## Other apps stay quiet after recording
+
+If Abe quit unexpectedly during a recording, audio ducking may not have been undone. Restore the volume in your system mixer, or set **Audio Ducking** to Off.
+
+## Windows SmartScreen or macOS blocks the app
+
+See the first-run notes on the [download page](/download#first-run).
+
+## Still stuck?
+
+[Open an issue on GitHub](https://github.com/HardHeadHackerHead/honest-abe/issues) with your OS, Abe version, engine and the exact error message. Never include your API key.

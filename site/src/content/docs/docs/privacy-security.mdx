@@ -1,0 +1,49 @@
+---
+title: Privacy and security model
+description: Exactly where your audio, text and API keys go when you use Abe, and what Abe does to keep them safe.
+---
+
+Abe's privacy comes from its architecture, not from a promise: **there is no Abe server**. No accounts, no telemetry, no relay in the middle.
+
+## Data flows
+
+| Data | Local mode | Cloud mode |
+|---|---|---|
+| Microphone audio | Processed in memory on your computer, then discarded | Sent over HTTPS directly to your chosen provider |
+| Transcribed text | Inserted at your cursor and saved to your local history | Returned by the provider, inserted at your cursor and saved to your local history |
+| Voice Transform | Selected text and your spoken instruction go to your transform provider (cloud, or a local server such as Ollama) | Same, to your chosen transform provider |
+| API keys | Not needed | Stored in the OS keychain, sent only to that provider |
+| Settings, dictionary, history | Stored locally on your computer | Stored locally on your computer |
+| Usage data or telemetry | None | None |
+
+The only requests Abe makes on its own are the **update check** (a small file from GitHub) and, in Local mode, the **one-time model download**.
+
+## Your provider's policies
+
+In Cloud mode your audio is handled by the provider under the terms you accepted when you created your key:
+
+- **OpenAI:** [API data controls](https://platform.openai.com/docs/guides/your-data). OpenAI says API data isn't used to train models by default and may be retained for up to 30 days for abuse monitoring.
+- **Groq:** [Your data in GroqCloud](https://console.groq.com/docs/your-data) and the [Groq privacy policy](https://groq.com/privacy-policy/).
+- **Custom endpoints:** whoever operates them. Self-hosting keeps everything on hardware you control.
+
+## API key handling
+
+- Keys are stored in the OS credential store: **Windows Credential Manager** or the **macOS Keychain**.
+- Provider requests are made by Abe's native (Rust) backend. The key isn't handed to the app's web interface, and there's no command that reads it back out.
+- Keys are never written to logs.
+
+## What Abe can access, and why
+
+Abe needs a few powerful permissions to work as a system-wide tool:
+
+- **Microphone:** used only while you're recording (holding the hotkey, or between toggles).
+- **Accessibility / input simulation:** to paste or type text into the app you're using.
+- **Automation (macOS):** to paste text into other applications.
+- **Global hotkeys / Input Monitoring:** to notice your shortcut while another app has focus. Abe reacts to its configured shortcuts only and doesn't record your keystrokes.
+- **Clipboard:** paste mode puts your text on the clipboard to insert it.
+
+## Verify it yourself
+
+Abe is [open source](https://github.com/HardHeadHackerHead/honest-abe). You can audit every network request, build it yourself, or watch its traffic with a tool like Wireshark or Little Snitch.
+
+See also the full [privacy policy](/privacy).

@@ -1,0 +1,510 @@
+---
+/**
+ * Animated mock of Abe in use: an app window receiving dictated text and the
+ * floating recording pill. If `public/demo.mp4` exists at build time it is
+ * shown instead (the mock stays as the poster/fallback).
+ */
+import fs from 'node:fs';
+import path from 'node:path';
+import { DICTATE, HOTKEYS } from '../data/hotkeys';
+
+const hasVideo = fs.existsSync(path.join(process.cwd(), 'public', 'demo.mp4'));
+const transformKeys = HOTKEYS.find((h) => h.id === 'transform')!.windows;
+
+const scenes = [
+  {
+    app: 'Mail',
+    title: 'New message',
+    meta: [
+      ['To', 'sam@studio.co'],
+      ['Subject', 'Re: homepage draft'],
+    ],
+    before: '',
+    text: 'Hi Sam, thanks for sending the draft over. I read it this morning and the new intro works really well. Can we walk through the pricing section together on Thursday?',
+    keys: DICTATE.windows,
+    mode: 'dictate',
+  },
+  {
+    app: 'Chat',
+    title: '#design-team',
+    meta: [['Channel', '#design-team']],
+    before: '',
+    text: 'Running about ten minutes late. Start without me and I will catch up on the notes afterwards.',
+    keys: DICTATE.windows,
+    mode: 'dictate',
+  },
+  {
+    app: 'Notes',
+    title: 'Release notes',
+    meta: [['Voice Transform', '"make it a bullet list"']],
+    before: 'we fixed the hotkey bug on windows, the overlay is faster now and the history search works offline',
+    text: '• Fixed the Windows hotkey bug\n• Faster recording overlay\n• History search now works offline',
+    keys: transformKeys,
+    mode: 'transform',
+  },
+];
+
+const first = scenes[0];
+---
+
+<div class="hero-demo relative mx-auto w-full max-w-[40rem]" data-scenes={JSON.stringify(scenes)}>
+  <div class="glow" aria-hidden="true"></div>
+
+  <figure class="relative m-0">
+    <figcaption class="sr-only">
+      Illustration: dictated text appearing in a mail window while Abe's recording overlay shows it is recording.
+    </figcaption>
+
+    {
+      hasVideo && (
+        <video
+          class="demo-video relative z-10 block w-full rounded-2xl shadow-ambient"
+          src="/demo.mp4"
+          muted
+          loop
+          playsinline
+          preload="metadata"
+          aria-label="Screen recording of Abe dictating into an app"
+        />
+      )
+    }
+
+    <div class:list={['window-back', hasVideo && 'has-video']} aria-hidden="true"></div>
+    <div class:list={['window relative z-10', hasVideo && 'has-video']} aria-hidden="true">
+      <div class="titlebar">
+        <span class="dots"><i></i><i></i><i></i></span>
+        <span class="app-title"><span data-app>{first.app}</span> <span class="sep">/</span> <span data-title>{first.title}</span></span>
+        <span class="w-10"></span>
+      </div>
+      <div class="meta" data-meta>
+        {
+          first.meta.map(([k, v]) => (
+            <div class="meta-row">
+              <span class="meta-k">{k}</span>
+              <span class="meta-v">{v}</span>
+            </div>
+          ))
+        }
+      </div>
+      <div class="body">
+        <p class="text" data-text><span class="typed">{first.text}</span><span class="caret"></span></p>
+      </div>
+    </div>
+
+    <div class:list={['pill-wrap', hasVideo && 'has-video']} aria-hidden="true">
+      <div class="keys" data-keys>
+        {first.keys.map((k) => <span class="kbd">{k}</span>)}
+      </div>
+      <div class="pill" data-state="idle">
+        <span class="pip"></span>
+        <span class="wave">
+          {Array.from({ length: 20 }, (_, i) => <i style={`--i:${i}`}></i>)}
+        </span>
+        <span class="pill-label" data-label>Ready</span>
+        <span class="timer" data-timer>0:00</span>
+      </div>
+    </div>
+  </figure>
+
+  <button type="button" class="pause" data-pause aria-pressed="false">
+    <span data-pause-label>Pause animation</span>
+  </button>
+</div>
+
+<style>
+  .hero-demo {
+    --win-bg: rgb(25 28 34 / 0.92);
+  }
+  .glow {
+    position: absolute;
+    inset: -12% -10% -18%;
+    background:
+      radial-gradient(40% 45% at 30% 35%, rgb(80 142 255 / 0.32), transparent 70%),
+      radial-gradient(35% 40% at 75% 70%, rgb(78 222 163 / 0.16), transparent 70%);
+    filter: blur(30px);
+    pointer-events: none;
+  }
+  .window {
+    border-radius: 1.1rem;
+    background: var(--win-bg);
+    box-shadow:
+      0 40px 100px rgb(3 8 22 / 0.65),
+      0 0 0 1px rgb(140 144 159 / 0.1),
+      inset 0 1px 0 rgb(255 255 255 / 0.05);
+    overflow: hidden;
+  }
+  .window-back {
+    position: absolute;
+    inset: -1.75rem 2.25rem auto -1.25rem;
+    height: 70%;
+    border-radius: 1.1rem;
+    background: linear-gradient(180deg, rgb(39 42 49 / 0.75), rgb(29 32 38 / 0.2));
+    box-shadow: 0 0 0 1px rgb(140 144 159 / 0.07);
+    transform: rotate(-3deg);
+  }
+  .window-back.has-video,
+  .window.has-video,
+  .pill-wrap.has-video {
+    display: none;
+  }
+  .titlebar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0.8rem 1rem;
+    background: rgb(39 42 49 / 0.7);
+  }
+  .dots {
+    display: flex;
+    gap: 0.4rem;
+    width: 2.5rem;
+  }
+  .dots i {
+    width: 0.7rem;
+    height: 0.7rem;
+    border-radius: 999px;
+    background: var(--abe-surface-bright);
+  }
+  .app-title {
+    font-size: 0.78rem;
+    font-weight: 500;
+    color: var(--abe-on-surface-variant);
+  }
+  .app-title .sep { color: var(--abe-outline-variant); }
+  .meta {
+    padding: 0.4rem 1.25rem 0;
+  }
+  .meta :global(.meta-row) {
+    display: flex;
+    gap: 0.75rem;
+    padding: 0.55rem 0;
+    font-size: 0.82rem;
+    box-shadow: 0 1px 0 rgb(140 144 159 / 0.08);
+  }
+  .meta :global(.meta-k) { color: var(--abe-outline); min-width: 3.5rem; }
+  .meta :global(.meta-v) { color: var(--abe-on-surface); }
+  .body {
+    padding: 1.1rem 1.25rem 4.5rem;
+    min-height: 13.5rem;
+  }
+  .text {
+    font-size: clamp(0.95rem, 0.9rem + 0.3vw, 1.08rem);
+    line-height: 1.7;
+    color: var(--abe-on-surface);
+    white-space: pre-line;
+    margin: 0;
+  }
+  .text :global(.selected) {
+    background: rgb(80 142 255 / 0.35);
+    border-radius: 0.2rem;
+    box-decoration-break: clone;
+    -webkit-box-decoration-break: clone;
+  }
+  .typed:empty::before {
+    content: 'Write your message…';
+    color: var(--abe-outline);
+  }
+  .caret {
+    display: inline-block;
+    width: 2px;
+    height: 1.15em;
+    margin-left: 1px;
+    vertical-align: -0.2em;
+    background: var(--abe-primary);
+    animation: blink 1.1s steps(1) infinite;
+  }
+  @keyframes blink { 50% { opacity: 0; } }
+
+  .pill-wrap {
+    position: absolute;
+    left: 50%;
+    bottom: -1.6rem;
+    z-index: 20;
+    transform: translateX(-50%);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.6rem;
+  }
+  .keys {
+    display: flex;
+    gap: 0.3rem;
+    opacity: 0;
+    transform: translateY(6px);
+    transition: opacity 0.25s ease, transform 0.25s ease;
+  }
+  .keys :global(.kbd) { font-size: 0.72rem; }
+  .hero-demo[data-keys-down] .keys { opacity: 1; transform: none; }
+  .hero-demo[data-keys-down] .keys :global(.kbd) { background: var(--abe-surface-bright); box-shadow: inset 0 1px 0 rgb(0 0 0 / 0.3); }
+
+  .pill {
+    display: flex;
+    align-items: center;
+    gap: 0.7rem;
+    height: 3rem;
+    padding: 0 1.15rem 0 1rem;
+    border-radius: 999px;
+    background: rgb(29 32 38 / 0.82);
+    backdrop-filter: blur(20px) saturate(150%);
+    -webkit-backdrop-filter: blur(20px) saturate(150%);
+    box-shadow:
+      0 18px 50px rgb(3 8 22 / 0.6),
+      0 0 0 1px rgb(140 144 159 / 0.16),
+      inset 0 1px 0 rgb(255 255 255 / 0.06);
+    transition: box-shadow 0.3s ease, min-width 0.3s ease;
+    min-width: 12rem;
+  }
+  .pip {
+    width: 0.6rem;
+    height: 0.6rem;
+    border-radius: 999px;
+    background: var(--abe-outline);
+    flex: none;
+  }
+  .wave {
+    display: flex;
+    align-items: center;
+    gap: 2px;
+    height: 1.4rem;
+  }
+  .wave i {
+    width: 2.5px;
+    height: 20%;
+    border-radius: 2px;
+    background: var(--abe-outline-variant);
+    transition: background 0.3s ease;
+  }
+  .pill-label {
+    font-size: 0.82rem;
+    font-weight: 600;
+    color: var(--abe-on-surface);
+    min-width: 6.9rem;
+  }
+  .timer {
+    font-family: var(--abe-font-mono);
+    font-size: 0.75rem;
+    color: var(--abe-outline);
+    font-variant-numeric: tabular-nums;
+  }
+
+  /* States mirror the real overlay: green "Ready", red dot + blue level bars while
+     recording, purple for Transform, a spinner-like shimmer while processing. */
+  .pill[data-state='idle'] .pip,
+  .pill[data-state='done'] .pip { background: var(--abe-tertiary); }
+  .pill[data-state='listening'] {
+    box-shadow: 0 18px 50px rgb(3 8 22 / 0.6), 0 0 0 1px rgb(174 198 255 / 0.3), 0 0 36px rgb(80 142 255 / 0.2);
+  }
+  .pill[data-state='listening'] .pip {
+    background: #ff5449;
+    --pulse: rgb(255 84 73 / 0.5);
+    animation: pulse 1.4s ease-in-out infinite;
+  }
+  .pill[data-state='listening'] .wave i,
+  .pill[data-state='transform'] .wave i {
+    background: var(--abe-primary);
+    animation: bar 0.9s ease-in-out infinite;
+    animation-delay: calc(var(--i) * -0.13s);
+  }
+  .pill[data-state='transform'] {
+    box-shadow: 0 18px 50px rgb(3 8 22 / 0.6), 0 0 0 1px rgb(168 85 247 / 0.4), 0 0 36px rgb(168 85 247 / 0.2);
+  }
+  .pill[data-state='transform'] .pip {
+    background: #a855f7;
+    --pulse: rgb(168 85 247 / 0.55);
+    animation: pulse 1.4s ease-in-out infinite;
+  }
+  .pill[data-state='transform'] .pill-label { color: var(--abe-primary-container); }
+  .pill[data-state='working'] .pip { background: var(--abe-primary); }
+  .pill[data-state='working'] .wave i {
+    background: var(--abe-primary);
+    animation: shimmer 1.1s ease-in-out infinite;
+    animation-delay: calc(var(--i) * 0.06s);
+  }
+  .pill[data-state='done'] .wave i { background: rgb(78 222 163 / 0.35); }
+
+  @keyframes pulse {
+    0%, 100% { box-shadow: 0 0 0 0 var(--pulse, rgb(78 222 163 / 0.5)); }
+    50% { box-shadow: 0 0 0 6px transparent; }
+  }
+  @keyframes bar {
+    0%, 100% { height: 18%; }
+    25% { height: 85%; }
+    50% { height: 40%; }
+    75% { height: 65%; }
+  }
+  @keyframes shimmer {
+    0%, 100% { height: 20%; opacity: 0.5; }
+    50% { height: 45%; opacity: 1; }
+  }
+
+  .pause {
+    position: absolute;
+    right: 0;
+    bottom: -3.6rem;
+    font-size: 0.72rem;
+    color: var(--abe-outline);
+    padding: 0.35rem 0.5rem;
+    border-radius: 0.4rem;
+  }
+  .pause:hover { color: var(--abe-on-surface); }
+
+  @media (max-width: 480px) {
+    .pill { min-width: 0; gap: 0.55rem; padding: 0 0.9rem; }
+    .wave i:nth-child(n + 13) { display: none; }
+    .pill-label { min-width: 6.2rem; font-size: 0.78rem; }
+    .body { min-height: 15rem; }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .pause { display: none; }
+    .typed:empty::before {
+    content: 'Write your message…';
+    color: var(--abe-outline);
+  }
+  .caret { animation: none; }
+  }
+</style>
+
+<script>
+  type Scene = {
+    app: string;
+    title: string;
+    meta: [string, string][];
+    before: string;
+    text: string;
+    keys: string[];
+    mode: 'dictate' | 'transform';
+  };
+
+  const root = document.querySelector<HTMLElement>('.hero-demo');
+  const reduced = window.matchMedia('(prefers-reduced-motion: reduce)');
+
+  if (root) {
+    const video = root.querySelector<HTMLVideoElement>('.demo-video');
+    if (video && !reduced.matches) video.play().catch(() => {});
+
+    const scenes: Scene[] = JSON.parse(root.dataset.scenes || '[]');
+    const $ = <T extends HTMLElement>(sel: string) => root.querySelector<T>(sel)!;
+    const pill = $('.pill');
+    const label = $('[data-label]');
+    const timer = $('[data-timer]');
+    const typed = $('.typed');
+    const appEl = $('[data-app]');
+    const titleEl = $('[data-title]');
+    const metaEl = $('[data-meta]');
+    const keysEl = $('[data-keys]');
+    const pauseBtn = $<HTMLButtonElement>('[data-pause]');
+    const pauseLabel = $('[data-pause-label]');
+
+    let paused = false;
+    let visible = true;
+    let token = 0;
+
+    const wait = (ms: number, t: number) =>
+      new Promise<void>((resolve, reject) => {
+        const step = () => {
+          if (t !== token) return reject(new Error('cancelled'));
+          if (paused || !visible || document.hidden) return setTimeout(step, 200);
+          ms -= 50;
+          if (ms <= 0) return resolve();
+          setTimeout(step, 50);
+        };
+        step();
+      });
+
+    const setState = (state: string, text: string) => {
+      pill.dataset.state = state;
+      label.textContent = text;
+    };
+
+    const escapeHtml = (s: string) => s.replace(/[&<>]/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;' })[c]!);
+
+    const setScene = (s: Scene) => {
+      appEl.textContent = s.app;
+      titleEl.textContent = s.title;
+      metaEl.innerHTML = s.meta
+        .map(([k, v]) => `<div class="meta-row"><span class="meta-k">${escapeHtml(k)}</span><span class="meta-v">${escapeHtml(v)}</span></div>`)
+        .join('');
+      keysEl.innerHTML = s.keys.map((k) => `<span class="kbd">${escapeHtml(k)}</span>`).join('');
+    };
+
+    async function record(seconds: number, t: number, state: string, text: string) {
+      root!.setAttribute('data-keys-down', '');
+      setState(state, text);
+      for (let i = 0; i <= seconds; i++) {
+        timer.textContent = `0:${String(i).padStart(2, '0')}`;
+        await wait(i === seconds ? 300 : 700, t);
+      }
+      root!.removeAttribute('data-keys-down');
+    }
+
+    async function reveal(text: string, t: number) {
+      const words = text.split(/(\s+)/);
+      let out = '';
+      for (const w of words) {
+        out += w;
+        typed.textContent = out;
+        if (w.trim()) await wait(38, t);
+      }
+    }
+
+    async function run(t: number) {
+      for (let i = 0; ; i = (i + 1) % scenes.length) {
+        const s = scenes[i];
+        setScene(s);
+        typed.textContent = '';
+        timer.textContent = '0:00';
+        setState('idle', 'Ready');
+        await wait(700, t);
+
+        if (s.mode === 'transform') {
+          typed.innerHTML = `<span class="selected">${escapeHtml(s.before)}</span>`;
+          await wait(900, t);
+          await record(3, t, 'transform', 'Transform');
+        } else {
+          await record(5, t, 'listening', 'Recording');
+        }
+        setState('working', s.mode === 'transform' ? 'Transforming…' : 'Transcribing…');
+        await wait(900, t);
+        typed.textContent = '';
+        await reveal(s.text, t);
+        setState('done', 'Ready');
+        await wait(2600, t);
+      }
+    }
+
+    const start = () => {
+      token++;
+      run(token).catch(() => {});
+    };
+
+    if (!reduced.matches) start();
+    reduced.addEventListener('change', () => {
+      if (reduced.matches) {
+        token++;
+        setScene(scenes[0]);
+        typed.textContent = scenes[0].text;
+        setState('idle', 'Ready');
+      } else start();
+    });
+
+    pauseBtn.addEventListener('click', () => {
+      paused = !paused;
+      pauseBtn.setAttribute('aria-pressed', String(paused));
+      pauseLabel.textContent = paused ? 'Play animation' : 'Pause animation';
+      root.toggleAttribute('data-paused', paused);
+      if (video) paused ? video.pause() : video.play().catch(() => {});
+    });
+
+    new IntersectionObserver(([entry]) => {
+      visible = entry.isIntersecting;
+    }).observe(root);
+  }
+</script>
+
+<style is:global>
+  .hero-demo[data-paused] *,
+  .hero-demo[data-paused] *::before {
+    animation-play-state: paused !important;
+  }
+</style>

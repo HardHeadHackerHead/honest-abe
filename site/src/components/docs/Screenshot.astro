@@ -1,0 +1,45 @@
+---
+/**
+ * A screenshot slot for the step-by-step guides. Renders nothing unless the
+ * image exists in `public/` at build time, so guides can reference
+ * screenshots before anyone has taken them (same approach as HeroDemo's video).
+ */
+import fs from 'node:fs';
+import path from 'node:path';
+
+interface Props {
+  /** Public path, e.g. `/docs/img/groq-1.png`. */
+  src: string;
+  alt: string;
+  caption?: string;
+}
+const { src, alt, caption } = Astro.props;
+const exists = fs.existsSync(path.join(process.cwd(), 'public', src));
+---
+
+{
+  exists && (
+    <figure class="abe-shot">
+      <img src={src} alt={alt} loading="lazy" decoding="async" />
+      {caption && <figcaption>{caption}</figcaption>}
+    </figure>
+  )
+}
+
+<style>
+  .abe-shot {
+    margin-block: 1rem 1.5rem;
+  }
+  .abe-shot img {
+    display: block;
+    max-width: 100%;
+    height: auto;
+    border-radius: 0.75rem;
+    box-shadow: 0 0 0 1px var(--abe-ghost-border), var(--abe-shadow-ambient);
+  }
+  .abe-shot figcaption {
+    margin-top: 0.5rem;
+    font-size: var(--sl-text-sm);
+    color: var(--abe-outline);
+  }
+</style>

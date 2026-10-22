@@ -1,0 +1,44 @@
+---
+import { TRANSCRIPTION_PRICES, PRICES_AS_OF, perHour, formatUsd } from '../../data/pricing';
+import { formatDate } from '../../lib/github';
+---
+
+<div class="cost-table">
+  <table>
+    <thead>
+      <tr>
+        <th scope="col">Provider</th>
+        <th scope="col">Model</th>
+        <th scope="col">Per minute</th>
+        <th scope="col">Per hour</th>
+      </tr>
+    </thead>
+    <tbody>
+      {
+        TRANSCRIPTION_PRICES.map((p) => {
+          const hr = perHour(p);
+          return (
+            <tr>
+              <td>{p.source ? <a href={p.source}>{p.provider}</a> : p.provider}</td>
+              <td>
+                {p.provider === 'Local' ? p.model : <code>{p.model}</code>}
+                {p.note && <span class="note">{p.note}</span>}
+              </td>
+              <td>{p.perMinute === null ? 'Check provider pricing' : formatUsd(p.perMinute)}</td>
+              <td>{hr === null ? 'Check provider pricing' : formatUsd(hr)}</td>
+            </tr>
+          );
+        })
+      }
+    </tbody>
+  </table>
+  <p class="asof">List prices in USD as of {formatDate(PRICES_AS_OF)}. Providers change prices; their pricing pages are authoritative.</p>
+</div>
+
+<style>
+  .cost-table { overflow-x: auto; }
+  .cost-table table { width: 100%; display: table; }
+  .cost-table code, .cost-table th { white-space: nowrap; }
+  .note { display: block; font-size: var(--sl-text-xs); color: var(--sl-color-gray-3); margin-top: 0.25rem; }
+  .asof { font-size: var(--sl-text-sm); color: var(--sl-color-gray-3); }
+</style>

@@ -1,0 +1,160 @@
+---
+title: Get a Groq API key
+description: A beginner-friendly, step-by-step guide to creating a free Groq API key and adding it to Abe. Groq is the recommended cloud option.
+sidebar:
+  label: Groq (recommended)
+---
+
+import { Steps } from '@astrojs/starlight/components';
+import Screenshot from '../../../../components/docs/Screenshot.astro';
+
+**Groq is the cloud option we recommend.** It transcribes very quickly, it's the cheapest provider Abe supports ($0.04 per hour of talking), and you can start on its free plan: a payment method is only requested if you upgrade. This guide takes about five minutes and you don't need any technical knowledge.
+
+:::note[Last verified 2026-10-22]
+Websites change. If a button has a slightly different name than below, look for the closest match. If something is clearly out of date, please [tell us on GitHub](https://github.com/HardHeadHackerHead/honest-abe/issues).
+:::
+
+## What you'll need
+
+- An email address (or an account you can sign in with, if Groq offers that option).
+- Abe installed on your computer. See [Getting started](/docs/getting-started).
+
+## 1. Create a free Groq account
+
+<Steps>
+
+1. Open [console.groq.com](https://console.groq.com/) in your web browser. This is GroqCloud, Groq's website for developers. Don't worry about the word "developer": you won't need to write any code.
+
+2. Click **Sign up** (or **Log in** if you already have an account) and follow the instructions. If Groq emails you a confirmation link, open it to finish signing up.
+
+   <Screenshot src="/docs/img/groq-1.png" alt="The GroqCloud sign-in page" caption="The GroqCloud sign-in page." />
+
+3. You land on the GroqCloud dashboard. You're on the **Free** plan, which is all you need to get started.
+
+</Steps>
+
+## 2. Create your API key
+
+<Steps>
+
+1. Open the **API Keys** page. You can click **API Keys** in the menu, or go straight to [console.groq.com/keys](https://console.groq.com/keys).
+
+   <Screenshot src="/docs/img/groq-2.png" alt="The API Keys page in GroqCloud" caption="The API Keys page." />
+
+2. Click **Create API Key**.
+
+3. Type a name you'll recognize later, such as `Abe on my laptop`, and confirm (the button is usually **Submit**).
+
+4. Groq shows your new key. It's a long line of letters and numbers that starts with `gsk_`. Click the copy button next to it.
+
+   <Screenshot src="/docs/img/groq-3.png" alt="A newly created Groq API key with a copy button" caption="Copy the key now; you may not see it again." />
+
+</Steps>
+
+:::caution[Copy the key now]
+You may not be able to view the key again after you close that window. If you lose it, that's fine: delete it and create a new one. Paste it into Abe right away (next section), or keep it in a password manager. Never post it anywhere public.
+:::
+
+## 3. Paste the key into Abe
+
+<Steps>
+
+1. Open Abe and go to **Settings → Transcription**. (The first-run setup screen asks the same question, so you can also do this there.)
+
+2. Choose **Use my own API key**.
+
+3. Pick **Groq** as the provider.
+
+4. Click in the key box and paste your key (<kbd>Ctrl</kbd> + <kbd>V</kbd>, or <kbd>Cmd</kbd> + <kbd>V</kbd> on a Mac).
+
+5. Click **Test**. After a moment, Abe confirms that your key works.
+
+   <Screenshot src="/docs/img/groq-4.png" alt="Abe's transcription settings with Groq selected and a successful key test" caption="A successful test in Abe's settings." />
+
+6. Try it: click into any text box, hold the dictation hotkey (<kbd>Ctrl</kbd> + <kbd>Alt</kbd> + <kbd>Space</kbd> by default), say a sentence and let go.
+
+</Steps>
+
+If the test fails, see [Troubleshooting](#troubleshooting) below.
+
+## 4. Set up Voice Transform (optional)
+
+[Voice Transform](/docs/voice-transform) rewrites selected text by voice ("make it formal", "turn this into bullet points"). It needs a chat model, and your Groq key works for that too, **even if you transcribe locally**.
+
+In **Settings**, set the **Transform** provider to **Groq** and the model to `openai/gpt-oss-120b` (Abe's default for Groq).
+
+This is the model we recommend: it's fast, it follows editing instructions well, and a typical transform costs a tiny fraction of a cent. If you want something even cheaper, `openai/gpt-oss-20b` also works.
+
+## Which model and why
+
+| Use | Model | Why |
+|---|---|---|
+| Dictation | `whisper-large-v3-turbo` (Abe's default for Groq) | Fast, accurate in many languages, and $0.04 per hour of audio |
+| Dictation, maximum accuracy | `whisper-large-v3` | Slightly more accurate, a bit slower, $0.111 per hour |
+| Voice Transform | `openai/gpt-oss-120b` (Abe's default for Groq) | Good at following editing instructions, very fast on Groq. `openai/gpt-oss-20b` is cheaper |
+
+Groq bills at least 10 seconds per recording, so a 3-second clip is billed as 10 seconds. At these prices that's still a tiny amount.
+
+## Free plan, billing and spend limits
+
+**The free plan.** You can start on Groq's free plan; a payment method is only requested if you upgrade. The free plan has rate limits: a cap on how many recordings and how much audio you can send per minute, hour and day. Groq's published limits for its Whisper models are 20 recordings a minute, 2,000 a day, and 2 hours of audio per hour (8 hours a day), which is plenty for normal dictation. Limits apply to your whole Groq account, not to each key. You can see your exact limits at **Settings → Limits** ([console.groq.com/settings/limits](https://console.groq.com/settings/limits)). On the free plan a single recording can be up to 25 MB.
+
+**Upgrading (only if you need it).** If you hit the limits often, upgrade to the paid **Developer** plan:
+
+<Steps>
+
+1. Go to **Settings → Billing** ([console.groq.com/settings/billing](https://console.groq.com/settings/billing)) and choose to upgrade to the Developer plan.
+
+2. Add a payment method (Visa, Mastercard, American Express or Discover card, US bank account, or SEPA debit).
+
+3. There's no upfront charge. Groq bills you at the end of the month, or earlier when your total usage first passes $1, $10, $100, $500 and $1,000. Groq doesn't charge amounts under $0.50.
+
+</Steps>
+
+**Set a spend limit (recommended once you're on the paid plan).** A spend limit blocks your key when you reach a monthly amount you choose, so a leaked key can't run up a bill:
+
+<Steps>
+
+1. Go to **Settings → Billing → Limits** ([console.groq.com/settings/billing/limits](https://console.groq.com/settings/billing/limits)).
+
+2. Click **Add Limit** and enter a monthly amount in US dollars. For dictation, $5 is generous.
+
+3. Optionally add email alerts, for example at 50%, 75% and 90% of the limit.
+
+4. Click **Save**.
+
+</Steps>
+
+Spend limits are only available on the paid plan, and only to the account owner. Groq updates your spending every 10 to 15 minutes, so you could go slightly over. The limit resets on the 1st of each month. You can watch your usage at **Dashboard → Usage** ([console.groq.com/dashboard/usage](https://console.groq.com/dashboard/usage)).
+
+## Troubleshooting
+
+| Abe says | What it means | What to do |
+|---|---|---|
+| **"Your API key was rejected. Check it in Settings."** | The key is wrong, incomplete, deleted, or from another provider | Copy the key again, making sure you got all of it and that **Groq** is selected. If you no longer have it, create a new key. |
+| **"The provider is rate limiting you. Try again in a moment."** | You hit a free-plan limit (per minute, hour or day) | Wait a minute and try again. If it happens a lot, upgrade to the Developer plan. |
+| **"Your provider account is out of credit."** | Your spend limit was reached, or a payment failed | Raise or remove the limit in **Settings → Billing → Limits**, or update your payment method in **Settings → Billing**. |
+| **"The selected model is not available. Check Settings."** | The model name is misspelled or retired | Use `whisper-large-v3-turbo` for dictation and `openai/gpt-oss-120b` for Voice Transform. |
+| **"This recording is too long for the provider."** | The recording is over 25 MB (free plan) or 100 MB (paid) | Keep recordings shorter, or lower **Max Duration** in **Settings → Advanced**. |
+| **"Couldn't reach the provider. Check your connection."** | No internet, or a VPN, proxy or firewall is blocking Groq | Check your connection and try again. |
+| **"The provider took too long to respond."** | Groq was slow or briefly unavailable | Try again in a moment. Groq doesn't charge for its own server errors. |
+
+### Delete or replace a key
+
+Delete a key if you lost it, think someone else saw it, or no longer use Abe on that computer:
+
+<Steps>
+
+1. Go to [console.groq.com/keys](https://console.groq.com/keys).
+
+2. Find the key by its name and delete it from the list.
+
+3. To keep using Abe, create a new key and paste it into **Settings → Transcription**, then click **Test**.
+
+</Steps>
+
+To remove the key from Abe itself, click **Remove** next to it in Settings.
+
+## Sources
+
+Checked on 2026-10-22: [supported models and prices](https://console.groq.com/docs/models), [rate limits](https://console.groq.com/docs/rate-limits), [spend limits](https://console.groq.com/docs/spend-limits), [billing FAQ](https://console.groq.com/docs/billing-faqs), [speech-to-text limits](https://console.groq.com/docs/speech-to-text) and [model deprecations](https://console.groq.com/docs/deprecations).

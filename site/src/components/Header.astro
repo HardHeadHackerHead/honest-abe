@@ -1,0 +1,112 @@
+---
+import Icon from './Icon.astro';
+import GitHubIcon from './GitHubIcon.astro';
+import { NAV_LINKS, GITHUB_URL } from '../config/site';
+
+const path = Astro.url.pathname.replace(/\.html$/, '').replace(/\/$/, '') || '/';
+const isActive = (href: string) => path === href || path.startsWith(`${href}/`);
+---
+
+<header class="sticky top-0 z-50">
+  <div class="header-bar glass">
+    <nav class="mx-auto flex h-16 max-w-6xl items-center gap-4 px-4 sm:px-6" aria-label="Main">
+      <a href="/" class="mr-auto flex items-center gap-2.5 rounded-lg text-on-surface" aria-label="Abe home">
+        <img src="/logo.png" alt="" width="32" height="32" class="rounded-[0.55rem] shadow-ambient" />
+        <span class="text-[1.05rem] font-semibold tracking-tight">Abe</span>
+      </a>
+
+      <ul class="hidden items-center gap-1 md:flex">
+        {
+          NAV_LINKS.map((link) => (
+            <li>
+              <a
+                href={link.href}
+                class:list={[
+                  'rounded-lg px-3 py-2 text-sm font-medium transition-colors',
+                  isActive(link.href) ? 'text-on-surface bg-surface-high' : 'text-on-surface-variant hover:text-on-surface',
+                ]}
+                aria-current={isActive(link.href) ? 'page' : undefined}
+              >
+                {link.label}
+              </a>
+            </li>
+          ))
+        }
+      </ul>
+      <a
+        href={GITHUB_URL}
+        class="hidden h-10 w-10 items-center justify-center rounded-lg text-on-surface-variant transition-colors hover:bg-surface-high hover:text-on-surface md:inline-flex"
+        aria-label="Abe on GitHub"
+      >
+        <GitHubIcon />
+      </a>
+      <a href="/download" class="btn btn-primary hidden !min-h-10 !px-4 !py-2 !text-sm sm:inline-flex">
+        <Icon name="download" size={16} />
+        Download
+      </a>
+
+      <button
+        type="button"
+        class="menu-toggle inline-flex h-10 w-10 items-center justify-center rounded-lg text-on-surface hover:bg-surface-high md:hidden"
+        aria-expanded="false"
+        aria-controls="mobile-menu"
+        aria-label="Open menu"
+      >
+        <Icon name="menu" size={22} class="icon-open" />
+        <Icon name="close" size={22} class="icon-close hidden" />
+      </button>
+    </nav>
+
+    <div id="mobile-menu" class="mobile-menu hidden md:hidden" hidden>
+      <ul class="mx-auto flex max-w-6xl flex-col gap-1 px-4 pb-5 pt-1">
+        {
+          NAV_LINKS.map((link) => (
+            <li>
+              <a
+                href={link.href}
+                class="block rounded-lg px-3 py-3 text-base font-medium text-on-surface hover:bg-surface-high"
+                aria-current={isActive(link.href) ? 'page' : undefined}
+              >
+                {link.label}
+              </a>
+            </li>
+          ))
+        }
+        <li>
+          <a href={GITHUB_URL} class="flex items-center gap-2 rounded-lg px-3 py-3 text-base font-medium text-on-surface hover:bg-surface-high">
+            <GitHubIcon size={18} /> GitHub
+          </a>
+        </li>
+      </ul>
+    </div>
+  </div>
+</header>
+
+<style>
+  .header-bar {
+    background: rgb(16 19 26 / 0.72);
+    box-shadow: 0 1px 0 rgb(140 144 159 / 0.08);
+  }
+</style>
+
+<script>
+  const toggle = document.querySelector<HTMLButtonElement>('.menu-toggle');
+  const menu = document.getElementById('mobile-menu');
+  if (toggle && menu) {
+    const set = (open: boolean) => {
+      toggle.setAttribute('aria-expanded', String(open));
+      toggle.setAttribute('aria-label', open ? 'Close menu' : 'Open menu');
+      menu.hidden = !open;
+      menu.classList.toggle('hidden', !open);
+      toggle.querySelector('.icon-open')?.classList.toggle('hidden', open);
+      toggle.querySelector('.icon-close')?.classList.toggle('hidden', !open);
+    };
+    toggle.addEventListener('click', () => set(toggle.getAttribute('aria-expanded') !== 'true'));
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape' && toggle.getAttribute('aria-expanded') === 'true') {
+        set(false);
+        toggle.focus();
+      }
+    });
+  }
+</script>

@@ -1,0 +1,154 @@
+{
+  "$schema": "../node_modules/@tauri-apps/cli/config.schema.json",
+  "productName": "Abe",
+  "mainBinaryName": "Abe",
+  "version": "1.0.0",
+  "identifier": "io.quadslab.abe",
+  "build": {
+    "beforeBuildCommand": "npm run build",
+    "beforeDevCommand": "npm run dev",
+    "frontendDist": "../dist",
+    "devUrl": "http://localhost:1420"
+  },
+  "app": {
+    "macOSPrivateApi": true,
+    "security": {
+      "csp": {
+        "default-src": "'self'",
+        "script-src": "'self'",
+        "style-src": "'self' 'unsafe-inline'",
+        "img-src": "'self' data: asset: http://asset.localhost",
+        "font-src": "'self'",
+        "connect-src": "ipc: http://ipc.localhost",
+        "object-src": "'none'",
+        "base-uri": "'none'",
+        "form-action": "'none'"
+      },
+      "devCsp": {
+        "default-src": "'self'",
+        "script-src": "'self' 'unsafe-inline'",
+        "style-src": "'self' 'unsafe-inline'",
+        "img-src": "'self' data: asset: http://asset.localhost",
+        "font-src": "'self'",
+        "connect-src": "'self' ipc: http://ipc.localhost ws://localhost:1420",
+        "object-src": "'none'",
+        "base-uri": "'none'",
+        "form-action": "'none'"
+      },
+      "dangerousDisableAssetCspModification": ["style-src"]
+    },
+    "windows": [
+      {
+        "label": "main",
+        "title": "Abe",
+        "width": 400,
+        "height": 600,
+        "minWidth": 80,
+        "minHeight": 100,
+        "resizable": true,
+        "fullscreen": false,
+        "decorations": true,
+        "transparent": false,
+        "center": true
+      },
+      {
+        "label": "overlay",
+        "title": "Abe Overlay",
+        "url": "index.html#/overlay",
+        "width": 320,
+        "height": 100,
+        "resizable": false,
+        "decorations": false,
+        "transparent": true,
+        "shadow": false,
+        "alwaysOnTop": true,
+        "skipTaskbar": true,
+        "visible": false,
+        "x": 100,
+        "y": 200
+      },
+      {
+        "label": "overlay-interaction",
+        "title": "Overlay Interaction",
+        "url": "index.html#/overlay-interaction",
+        "width": 90,
+        "height": 28,
+        "resizable": false,
+        "decorations": false,
+        "transparent": true,
+        "shadow": false,
+        "alwaysOnTop": true,
+        "skipTaskbar": true,
+        "visible": false,
+        "x": 200,
+        "y": 234
+      },
+      {
+        "label": "history",
+        "title": "Transcription History",
+        "url": "index.html#/history",
+        "create": false,
+        "width": 600,
+        "height": 700,
+        "minWidth": 400,
+        "minHeight": 500,
+        "resizable": true,
+        "decorations": true,
+        "transparent": false,
+        "center": true
+      },
+      {
+        "label": "garden",
+        "title": "Your Transcription Garden",
+        "url": "index.html#/garden",
+        "create": false,
+        "width": 450,
+        "height": 600,
+        "minWidth": 350,
+        "minHeight": 450,
+        "resizable": true,
+        "decorations": true,
+        "transparent": false,
+        "center": true
+      }
+    ]
+  },
+  "bundle": {
+    "active": true,
+    "targets": ["app", "dmg", "nsis", "deb", "appimage"],
+    "icon": [
+      "icons/icon.png",
+      "icons/icon.ico"
+    ],
+    "category": "Productivity",
+    "shortDescription": "Voice typing for your desktop",
+    "license": "AGPL-3.0-or-later",
+    "createUpdaterArtifacts": false,
+    "windows": {
+      "digestAlgorithm": "sha256",
+      "webviewInstallMode": {
+        "type": "downloadBootstrapper"
+      },
+      "nsis": {
+        "installerIcon": "icons/icon.ico",
+        "headerImage": "nsis/header.bmp",
+        "sidebarImage": "nsis/sidebar.bmp",
+        "installMode": "both",
+        "compression": "lzma"
+      }
+    },
+    "macOS": {
+      "entitlements": "./entitlements.plist",
+      "infoPlist": "./Info.plist",
+      "minimumSystemVersion": "10.15"
+    }
+  },
+  "plugins": {
+    "updater": {
+      "endpoints": [
+        "https://github.com/HardHeadHackerHead/honest-abe/releases/latest/download/latest.json"
+      ],
+      "pubkey": "dW50cnVzdGVkIGNvbW1lbnQ6IG1pbmlzaWduIHB1YmxpYyBrZXk6IDNBMTVDNkFEM0U2MTYyRUUKUldUdVltRStyY1lWT29TeXJEbzlIdUlEWFVwWXBraTZrYjNLNHdwbjZLYmk2a3N5MjY4cVFqblkK"
+    }
+  }
+}

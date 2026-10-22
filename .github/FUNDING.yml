@@ -1,0 +1,2 @@
+# TODO: replace with the real Stripe Payment Link (same value as DONATE_URL in src/constants/index.ts)
+custom: ["https://donate.stripe.com/REPLACE_ME"]

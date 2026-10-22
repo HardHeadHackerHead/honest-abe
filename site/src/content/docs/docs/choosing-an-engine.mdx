@@ -1,0 +1,36 @@
+---
+title: 'Choosing an engine: Local vs Cloud'
+description: Abe can transcribe offline with Whisper on your computer, or in the cloud with your own API key. Here's how to choose.
+---
+
+Abe turns speech into text with one of two engines. You choose during setup and can switch any time in **Settings**.
+
+| | **Local (offline)** | **Cloud (your own API key)** |
+|---|---|---|
+| Where audio goes | Nowhere. It stays on your computer. | Straight from your computer to the provider you chose |
+| Cost | Free | A few cents per hour of talking, billed by your provider ([Costs](/docs/costs)) |
+| Setup | One-time model download (75 MB to 1.6 GB) | Create an API key and paste it in |
+| Speed | Depends on your hardware | Usually around a second, regardless of your hardware |
+| Accuracy | Good to excellent, depending on model size | Excellent |
+| Works offline | Yes | No |
+| Voice Transform | Needs a transform provider (cloud key, or Ollama on your computer) | Yes, with the same key |
+
+## Pick Local if…
+
+- You want your audio to **never leave your machine**.
+- You have a reasonably modern computer: Apple Silicon Mac, or a PC with a recent CPU (a GPU helps a lot for the larger models).
+- You don't want to deal with API keys or bills.
+
+Start with **Base** (the default) or **Small**, then try **Large v3 Turbo** if your computer keeps up. See [Local Whisper models](/docs/local-models).
+
+## Pick Cloud if…
+
+- You're on an older or low-power laptop where local models feel slow.
+- You want the best accuracy for accents, jargon or noisy rooms without waiting.
+- You're fine with your audio being processed by a provider such as OpenAI or Groq under their data policy.
+
+**We recommend [Groq](/docs/api-keys/groq):** it's the cheapest, very fast, and has a free plan that doesn't need a credit card. **[OpenAI](/docs/api-keys/openai)** offers several models, from budget to highest accuracy. You can also point Abe at **[any OpenAI-compatible endpoint](/docs/api-keys/custom)**, including one you run yourself.
+
+:::tip
+You can set up both. Use Local day to day, and keep a cloud key around for long or tricky recordings.
+:::

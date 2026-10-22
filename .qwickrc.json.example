@@ -1,0 +1,10 @@
+{
+  "project": "your-qwickcert-project",
+  "organization": "your-qwickcert-org",
+  "verify": true,
+  "files": [
+    "release/**/*.exe",
+    "src-tauri/target/release/*.exe",
+    "target/release/bundle/nsis/*.exe"
+  ]
+}

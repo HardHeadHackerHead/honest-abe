@@ -1,0 +1,173 @@
+---
+title: Get an OpenAI API key
+description: A beginner-friendly, step-by-step guide to creating an OpenAI API key, adding prepaid credit, setting a spend limit and adding the key to Abe.
+sidebar:
+  label: OpenAI
+---
+
+import { Steps } from '@astrojs/starlight/components';
+import Screenshot from '../../../../components/docs/Screenshot.astro';
+
+OpenAI makes Whisper and the GPT models. Using it with Abe costs about 27 cents per hour of talking with the default model, `gpt-transcribe`. Unlike [Groq](/docs/api-keys/groq), OpenAI has no free plan: you buy prepaid credit first, at least $5. This guide takes about ten minutes and you don't need any technical knowledge.
+
+:::note[Last verified 2026-10-22]
+Websites change. If a button has a slightly different name than below, look for the closest match. If something is clearly out of date, please [tell us on GitHub](https://github.com/HardHeadHackerHead/honest-abe/issues).
+:::
+
+## What you'll need
+
+- An email address (or an account you can sign in with, if OpenAI offers that option).
+- A payment card for at least $5 of prepaid credit.
+- Abe installed on your computer. See [Getting started](/docs/getting-started).
+
+:::tip[ChatGPT Plus is separate]
+A ChatGPT subscription (Plus, Pro and so on) doesn't include API credit. You can log in with the same account, but the API is billed separately.
+:::
+
+## 1. Create an OpenAI API account
+
+<Steps>
+
+1. Open [platform.openai.com](https://platform.openai.com/) in your web browser. This is OpenAI's website for developers, separate from the ChatGPT app. You won't need to write any code.
+
+2. Click **Sign up** (or **Log in** if you already use ChatGPT) and follow the instructions. OpenAI may ask you to confirm your email address or phone number.
+
+   <Screenshot src="/docs/img/openai-1.png" alt="The OpenAI Platform sign-in page" caption="The OpenAI Platform sign-in page." />
+
+</Steps>
+
+## 2. Add prepaid credit
+
+API keys don't work until your account has credit.
+
+<Steps>
+
+1. Go to **Settings → Billing** ([platform.openai.com/settings/organization/billing](https://platform.openai.com/settings/organization/billing)).
+
+2. Click **Add payment details** and enter your card.
+
+3. Choose how much credit to buy. The minimum is $5, which covers more than 18 hours of dictation with the default model.
+
+4. Look at **Use auto-reload** before you confirm. It's **on** by default and buys more credit automatically when your balance runs low. Turn it **off** if you'd rather top up by hand; your balance then acts as a natural spending cap.
+
+5. Confirm the purchase. Your balance can take a few minutes to appear.
+
+   <Screenshot src="/docs/img/openai-2.png" alt="OpenAI's billing page with the credit purchase form" caption="Buying prepaid credit." />
+
+</Steps>
+
+Purchased credit expires after one year.
+
+## 3. Set a spend limit (recommended)
+
+A spend limit stops your key from working once you reach a monthly amount you choose, so a leaked key can't run up a bill.
+
+<Steps>
+
+1. Go to **Settings → Limits** ([platform.openai.com/settings/organization/limits](https://platform.openai.com/settings/organization/limits)).
+
+2. In the **Spend** section, click **Edit spend limit**.
+
+3. Enter a **Monthly spend limit**, for example $5.
+
+4. Turn on **Enforce a hard limit**. Without it you only get an email alert, and requests keep going through.
+
+5. Click **Save**.
+
+</Steps>
+
+OpenAI's tracking isn't instant, so spending can go slightly over the limit. The limit resets each month.
+
+## 4. Create your API key
+
+<Steps>
+
+1. Go to the **API keys** page: [platform.openai.com/settings/organization/api-keys](https://platform.openai.com/settings/organization/api-keys).
+
+2. Click **Create new secret key**.
+
+3. Fill in the form:
+   - **Name:** something you'll recognize later, such as `Abe on my laptop`.
+   - **Project:** leave the default project selected.
+   - **Permissions:** leave it on **All**, the default.
+
+4. Click **Create secret key**.
+
+5. OpenAI shows your new key. It's a long line of characters that starts with `sk-`. Click **Copy**.
+
+   <Screenshot src="/docs/img/openai-3.png" alt="A newly created OpenAI secret key with a Copy button" caption="Copy the key now; you may not see it again." />
+
+</Steps>
+
+:::caution[Copy the key now]
+You may not be able to view the key again after you close that window. If you lose it, delete it and create a new one. Paste it into Abe right away (next section), or keep it in a password manager. Never post it anywhere public.
+:::
+
+## 5. Paste the key into Abe
+
+<Steps>
+
+1. Open Abe and go to **Settings → Transcription**. (The first-run setup screen asks the same question, so you can also do this there.)
+
+2. Choose **Use my own API key**.
+
+3. Pick **OpenAI** as the provider.
+
+4. Click in the key box and paste your key (<kbd>Ctrl</kbd> + <kbd>V</kbd>, or <kbd>Cmd</kbd> + <kbd>V</kbd> on a Mac).
+
+5. Click **Test**. After a moment, Abe confirms that your key works.
+
+   <Screenshot src="/docs/img/openai-4.png" alt="Abe's transcription settings with OpenAI selected and a successful key test" caption="A successful test in Abe's settings." />
+
+6. Try it: click into any text box, hold the dictation hotkey (<kbd>Ctrl</kbd> + <kbd>Alt</kbd> + <kbd>Space</kbd> by default), say a sentence and let go.
+
+</Steps>
+
+If the test fails, see [Troubleshooting](#troubleshooting) below.
+
+## 6. Set up Voice Transform (optional)
+
+[Voice Transform](/docs/voice-transform) rewrites selected text by voice. It needs a chat model, and your OpenAI key works for that too, **even if you transcribe locally**. In **Settings**, set the **Transform** provider to **OpenAI** and the model to `gpt-6-luna` (Abe's default for OpenAI). A typical transform costs a tiny fraction of a cent.
+
+## Which model and why
+
+| Use | Model | Price (Oct 2026) | Why |
+|---|---|---|---|
+| Dictation | `gpt-transcribe` (Abe's default for OpenAI) | $0.0045 per minute | OpenAI's current transcription model: accurate across many languages |
+| Voice Transform | `gpt-6-luna` (Abe's default for OpenAI) | $0.10 / $0.50 per million tokens in / out | Cheap, quick and good at editing instructions |
+
+:::note[Deprecated models (retire early 2027)]
+OpenAI is retiring `whisper-1`, `gpt-4o-transcribe` and `gpt-4o-mini-transcribe` (26 February 2027) and `gpt-4o-mini` (14 January 2027). Abe's defaults above already use their replacements.
+:::
+
+## Troubleshooting
+
+| Abe says | What it means | What to do |
+|---|---|---|
+| **"Your API key was rejected. Check it in Settings."** | The key is wrong, incomplete, deleted, or from another provider | Copy the key again, making sure you got all of it and that **OpenAI** is selected. If you no longer have it, create a new key. |
+| **"Your provider account is out of credit."** | Your prepaid balance is used up, or you reached your spend limit | Add credit in **Settings → Billing**, or raise the limit in **Settings → Limits**. |
+| **"The provider is rate limiting you. Try again in a moment."** | Too many requests in a short time. New accounts have lower limits | Wait a moment and try again. Limits go up automatically as you use the API. |
+| **"The selected model is not available. Check Settings."** | The model name is misspelled, retired, or your key's project can't use it | Use `gpt-transcribe` for dictation and `gpt-6-luna` for Voice Transform. If you chose **Restricted** permissions, create a key with **All**. |
+| **"This recording is too long for the provider."** | OpenAI accepts recordings up to 25 MB | Keep recordings shorter, or lower **Max Duration** in **Settings → Advanced**. |
+| **"Couldn't reach the provider. Check your connection."** | No internet, or a VPN, proxy or firewall is blocking OpenAI | Check your connection. OpenAI's API also isn't available in every country. |
+| **"The provider took too long to respond."** | OpenAI was slow or overloaded | Try again in a moment, or check [status.openai.com](https://status.openai.com/). |
+
+### Delete or replace a key
+
+Delete a key if you lost it, think someone else saw it, or no longer use Abe on that computer:
+
+<Steps>
+
+1. Go to [platform.openai.com/settings/organization/api-keys](https://platform.openai.com/settings/organization/api-keys).
+
+2. Find the key by its name and delete (revoke) it. It stops working within a few seconds.
+
+3. To keep using Abe, create a new key and paste it into **Settings → Transcription**, then click **Test**.
+
+</Steps>
+
+To remove the key from Abe itself, click **Remove** next to it in Settings.
+
+## Sources
+
+Checked on 2026-10-22: [OpenAI pricing](https://developers.openai.com/api/docs/pricing), [prepaid billing](https://help.openai.com/en/articles/8264644-setting-up-and-managing-prepaid-api-billing), [spend limits](https://developers.openai.com/api/docs/guides/spend-limits), [API key permissions](https://help.openai.com/en/articles/8867743-assign-api-key-permissions), [error codes](https://developers.openai.com/api/docs/guides/error-codes), [file transcription](https://developers.openai.com/api/docs/guides/speech-to-text) and [deprecations](https://developers.openai.com/api/docs/deprecations).

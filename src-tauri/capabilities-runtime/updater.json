@@ -1,0 +1,9 @@
+{
+  "identifier": "updater",
+  "description": "Check for, install and relaunch into official updates. Added at runtime only when built with the `updater` cargo feature, because the plugin's permissions don't exist otherwise.",
+  "windows": ["main"],
+  "permissions": [
+    "updater:default",
+    "process:allow-restart"
+  ]
+}

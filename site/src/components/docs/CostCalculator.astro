@@ -1,0 +1,112 @@
+---
+/** Minutes of dictation per day → estimated monthly cost for every model in the price list. */
+import { TRANSCRIPTION_PRICES } from '../../data/pricing';
+
+const rows = TRANSCRIPTION_PRICES.filter((p) => p.perMinute !== null).map((p) => ({
+  label: p.provider === 'Local' ? 'Local Whisper' : `${p.provider} ${p.model}`,
+  perMinute: p.perMinute as number,
+}));
+---
+
+<div class="calc not-content" data-rows={JSON.stringify(rows)}>
+  <div class="calc-inputs">
+    <label>
+      <span>Minutes of talking per day</span>
+      <input type="number" name="minutes" min="0" max="1440" step="1" value="30" inputmode="numeric" />
+    </label>
+    <label>
+      <span>Days per month</span>
+      <input type="number" name="days" min="1" max="31" step="1" value="22" inputmode="numeric" />
+    </label>
+  </div>
+  <input type="range" name="slider" min="0" max="240" step="5" value="30" aria-label="Minutes of talking per day" />
+  <output class="calc-out" aria-live="polite">
+    <table>
+      <thead>
+        <tr><th scope="col">Model</th><th scope="col">Per month</th><th scope="col">Per year</th></tr>
+      </thead>
+      <tbody>
+        {
+          rows.map((r) => (
+            <tr>
+              <td>{r.label}</td>
+              <td data-month>{r.perMinute === 0 ? '$0.00' : ''}</td>
+              <td data-year>{r.perMinute === 0 ? '$0.00' : ''}</td>
+            </tr>
+          ))
+        }
+      </tbody>
+    </table>
+  </output>
+  <p class="calc-hint">
+    For scale: most people speak 130 to 160 words a minute, so 30 minutes a day is roughly 4,000 to 5,000 words.
+    Only the time you're actually holding the hotkey counts.
+  </p>
+</div>
+
+<style>
+  .calc {
+    margin-block: 1.5rem;
+    padding: 1.5rem;
+    border-radius: 1rem;
+    background: var(--abe-surface-low);
+  }
+  .calc-inputs {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(12rem, 1fr));
+    gap: 1rem;
+  }
+  .calc label { display: flex; flex-direction: column; gap: 0.4rem; font-size: var(--sl-text-sm); color: var(--abe-on-surface); }
+  .calc input[type='number'] {
+    font: inherit;
+    font-size: 1.1rem;
+    padding: 0.6rem 0.8rem;
+    border-radius: 0.5rem;
+    border: 0;
+    background: var(--abe-surface-high);
+    color: var(--abe-on-surface);
+    box-shadow: inset 0 -2px 0 transparent;
+  }
+  .calc input[type='number']:focus { outline: none; box-shadow: inset 0 -2px 0 var(--abe-primary); }
+  .calc input[type='number']:focus-visible { outline: 2px solid var(--abe-primary); outline-offset: 2px; }
+  .calc input[type='range'] { width: 100%; margin-top: 1.25rem; accent-color: var(--abe-primary-container); }
+  .calc-out { display: block; margin-top: 1rem; overflow-x: auto; }
+  .calc table { width: 100%; border-collapse: collapse; font-size: var(--sl-text-sm); }
+  .calc th, .calc td { text-align: left; padding: 0.6rem 0.75rem; }
+  .calc th { color: var(--abe-outline); font-weight: 600; font-size: var(--sl-text-xs); text-transform: uppercase; letter-spacing: 0.08em; }
+  .calc tbody tr:nth-child(odd) { background: rgb(29 32 38 / 0.7); }
+  .calc td:not(:first-child) { font-variant-numeric: tabular-nums; color: var(--abe-on-surface); white-space: nowrap; }
+  .calc-hint { margin-top: 1rem; font-size: var(--sl-text-sm); color: var(--sl-color-gray-3); }
+</style>
+
+<script>
+  document.querySelectorAll<HTMLElement>('.calc').forEach((el) => {
+    const rows: { perMinute: number }[] = JSON.parse(el.dataset.rows || '[]');
+    const minutes = el.querySelector<HTMLInputElement>('input[name="minutes"]')!;
+    const days = el.querySelector<HTMLInputElement>('input[name="days"]')!;
+    const slider = el.querySelector<HTMLInputElement>('input[name="slider"]')!;
+    const months = el.querySelectorAll('[data-month]');
+    const years = el.querySelectorAll('[data-year]');
+    const fmt = (v: number) => `$${v < 10 ? v.toFixed(2) : v.toFixed(0)}`;
+
+    const update = () => {
+      const m = Math.max(0, Math.min(1440, Number(minutes.value) || 0));
+      const d = Math.max(1, Math.min(31, Number(days.value) || 1));
+      rows.forEach((r, i) => {
+        const month = r.perMinute * m * d;
+        months[i].textContent = fmt(month);
+        years[i].textContent = fmt(month * 12);
+      });
+    };
+    minutes.addEventListener('input', () => {
+      slider.value = minutes.value;
+      update();
+    });
+    slider.addEventListener('input', () => {
+      minutes.value = slider.value;
+      update();
+    });
+    days.addEventListener('input', update);
+    update();
+  });
+</script>
