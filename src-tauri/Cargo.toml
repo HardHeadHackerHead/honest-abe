@@ -44,7 +44,7 @@ core-foundation = "0.9"
 
 [target.'cfg(target_os = "windows")'.dependencies]
 rdev = "0.5"
-windows = { version = "0.58", features = [
+windows = { version = "0.62", features = [
     "Win32_Media_Audio",
     "Win32_System_Com",
     "Win32_Foundation",
