@@ -1,0 +1,29 @@
+---
+import Default from '@astrojs/starlight/components/SocialIcons.astro';
+import { NAV_LINKS } from '../../config/site';
+
+const links = NAV_LINKS.filter((l) => l.href !== '/docs');
+---
+
+<nav class="abe-docs-nav" aria-label="Site">
+	{links.map((l) => <a href={l.href}>{l.label}</a>)}
+</nav>
+<Default />
+
+<style>
+	.abe-docs-nav {
+		display: flex;
+		gap: 1.25rem;
+		align-items: center;
+		margin-inline-end: 0.5rem;
+	}
+	.abe-docs-nav a {
+		color: var(--sl-color-gray-2);
+		font-size: var(--sl-text-sm);
+		font-weight: 500;
+		text-decoration: none;
+	}
+	.abe-docs-nav a:hover {
+		color: var(--sl-color-white);
+	}
+</style>

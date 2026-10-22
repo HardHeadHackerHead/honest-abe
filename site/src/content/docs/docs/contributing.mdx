@@ -1,0 +1,42 @@
+---
+title: Contributing
+description: How to report bugs, suggest features and send pull requests to Abe.
+---
+
+Abe is open source under the [AGPL-3.0-or-later](https://www.gnu.org/licenses/agpl-3.0.html) license, and contributions of all sizes are welcome.
+
+## Report a bug
+
+[Open an issue on GitHub](https://github.com/HardHeadHackerHead/honest-abe/issues) with:
+
+- Your OS and version, and the Abe version (shown in the app's About section)
+- Local or Cloud mode, and which provider and model
+- What you did, what you expected, and what happened instead
+- Any error message shown in the app
+
+Please **never paste your API key** into an issue or log.
+
+## Report a security issue
+
+Please don't open a public issue for vulnerabilities. Email [quad@quadslab.io](mailto:quad@quadslab.io) instead, or use GitHub's private vulnerability reporting on the repository if it's enabled.
+
+## Suggest a feature
+
+Open an issue describing the problem you're trying to solve, not just the solution. Abe deliberately stays small and focused, and it will never add accounts, telemetry or a required server.
+
+## Send a pull request
+
+1. [Build Abe from source](/docs/building-from-source) and make sure it runs.
+2. Create a branch for your change. Keep pull requests focused: one fix or feature each.
+3. Run the type checker (`npm run build`) and, for Rust changes, `cargo check` and `cargo clippy` in `src-tauri/`.
+4. Describe what you changed and how you tested it. Screenshots help for UI changes.
+
+By contributing, you agree that your contribution is licensed under the project's license. See `CONTRIBUTING.md` in the repository for details.
+
+## Improve the docs
+
+These docs live in the repository under `site/src/content/docs/`. Every page has an **Edit page** link at the bottom. Fixes for typos, unclear steps or outdated instructions are some of the most useful contributions.
+
+## Donate
+
+If you can't contribute code, [a donation](/donate) helps cover code signing and development time.

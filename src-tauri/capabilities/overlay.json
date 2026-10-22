@@ -1,0 +1,13 @@
+{
+  "$schema": "../gen/schemas/desktop-schema.json",
+  "identifier": "overlay",
+  "description": "Click-through recording overlay: listens for state events and polls the audio level.",
+  "windows": ["overlay"],
+  "permissions": [
+    "core:event:allow-listen",
+    "core:event:allow-unlisten",
+    "core:window:allow-set-ignore-cursor-events",
+    "allow-get-audio-level",
+    "allow-get-engine-status"
+  ]
+}

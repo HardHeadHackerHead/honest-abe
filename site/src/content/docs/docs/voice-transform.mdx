@@ -1,0 +1,68 @@
+---
+title: Voice Transform
+description: Select text anywhere, hold a hotkey and say how to rewrite it.
+---
+
+import { Steps } from '@astrojs/starlight/components';
+
+Voice Transform rewrites existing text by voice. Select some text in any app, hold the transform hotkey, say what you want, and Abe replaces the selection with the result.
+
+## How to use it
+
+<Steps>
+
+1. **Select the text** you want to change, in any app.
+2. **Hold** <kbd>Ctrl</kbd> + <kbd>Alt</kbd> + <kbd>T</kbd> (macOS: <kbd>Ctrl</kbd> + <kbd>Option</kbd> + <kbd>T</kbd>).
+3. **Say your instruction**, for example "make this more formal".
+4. **Release.** Abe copies the selection, transcribes your instruction, sends both to your transform provider and types the result over your selection.
+
+</Steps>
+
+Because the result replaces your selection, you can undo it with your app's usual undo (<kbd>Ctrl</kbd> + <kbd>Z</kbd> or <kbd>Cmd</kbd> + <kbd>Z</kbd>).
+
+## What to say
+
+Anything you'd ask an editor. Abe has **12 built-in presets** you choose by voice: if what you say matches one of them, such as "fix grammar", "make it formal", "bullet points" or "translate to Spanish", Abe uses a carefully tuned instruction for that job. If it doesn't match a preset, Abe uses your own words as the instruction.
+
+### Things you can say
+
+| Say something like | What happens |
+|---|---|
+| "Fix the grammar" | Fixes grammar and spelling while keeping the meaning and tone |
+| "Make it formal" | Rewrites in a more formal, professional tone |
+| "Make it casual" | Rewrites in a more casual, conversational tone |
+| "Make it concise" | Shortens it while keeping the key information |
+| "Expand on this" | Adds detail and explanation |
+| "Turn this into bullet points" | Converts it into clear bullet points |
+| "Make this an email" | Reformats it as a professional email |
+| "Make this a code comment" | Rewrites it as a clear code comment or documentation |
+| "Summarize this" | Summarizes the key points |
+| "Translate to Spanish" | Translates to Spanish |
+| "Translate to French" | Translates to French |
+| "Translate to German" | Translates to German |
+
+You aren't limited to these. "Make it friendlier", "write this as a haiku", "convert to a numbered checklist" and "translate to Japanese" all work: they're sent as written.
+
+## Custom transform prompt
+
+**Settings → Advanced → Output → Transform Prompt** lets you add standing instructions (up to 500 characters) that are included with every transform. Examples:
+
+- "Write in British English spelling."
+- "Keep the same length as the original."
+- "Never use exclamation marks."
+
+## Providers
+
+Voice Transform needs a chat model (a language model), so it **always uses a cloud or custom provider, even when your transcription is Local**. Choose one in **Settings**:
+
+- **Groq** (recommended): `openai/gpt-oss-120b`. Fast and costs a fraction of a cent per transform. [Get a Groq key](/docs/api-keys/groq)
+- **OpenAI:** `gpt-6-luna`. [Get an OpenAI key](/docs/api-keys/openai)
+- **Custom:** any OpenAI-compatible chat endpoint, such as **Ollama** running on your computer (base URL `http://localhost:11434/v1`) or OpenRouter. [Set up a custom endpoint](/docs/api-keys/custom)
+
+Your selected text and your spoken instruction are sent to that provider; nothing goes through an Abe server. Pointing Voice Transform at Ollama keeps everything on your machine.
+
+## Limits and tips
+
+- Selections can be up to **10,000 characters**.
+- If nothing happens, make sure text is actually selected and the app allows copying. See [Troubleshooting](/docs/troubleshooting#voice-transform-does-nothing).
+- Short, direct instructions work best.

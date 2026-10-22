@@ -1,0 +1,112 @@
+---
+import LegalLayout from '../layouts/LegalLayout.astro';
+import { CONTACT_EMAIL, GITHUB_URL } from '../config/site';
+---
+
+<LegalLayout
+  title="Privacy policy"
+  description="Abe has no accounts, no telemetry and no servers. Here's exactly what happens to your data, in the app and on this website."
+  updated="2026-10-22"
+>
+  <p>
+    Short version: <strong>we don't collect your data.</strong> Abe has no accounts, no telemetry and no server that your
+    audio or text passes through. This page explains the few places where data does move, and who handles it.
+  </p>
+  <p>
+    "Abe", "we" and "us" mean Quads Lab, which maintains the Abe app and this website (getabe.app).
+  </p>
+
+  <h2>This website</h2>
+  <ul>
+    <li><strong>No cookies.</strong> The site doesn't set any cookies or use local storage to track you.</li>
+    <li><strong>No analytics or tracking.</strong> There are no analytics scripts, pixels, session recorders or third-party embeds.</li>
+    <li><strong>No external requests.</strong> Fonts and images are served from getabe.app itself.</li>
+    <li>
+      <strong>Hosting.</strong> The site is a static site hosted on Cloudflare Pages. Like any web host, Cloudflare
+      processes technical data such as your IP address to deliver pages and protect against abuse, under the
+      <a href="https://www.cloudflare.com/privacypolicy/">Cloudflare privacy policy</a>. We don't receive or keep access logs.
+    </li>
+    <li>
+      <strong>Downloads</strong> are served by GitHub, under the
+      <a href="https://docs.github.com/en/site-policy/privacy-policies/github-general-privacy-statement">GitHub privacy statement</a>.
+    </li>
+  </ul>
+
+  <h2>The Abe app</h2>
+  <h3>No accounts, no telemetry</h3>
+  <p>
+    You never sign in. The app doesn't send usage statistics, crash reports, analytics or any other telemetry to us or
+    anyone else.
+  </p>
+
+  <h3>Local mode</h3>
+  <p>
+    When you choose <strong>Local</strong>, transcription runs on your own computer with an open-source Whisper model.
+    Your audio never leaves your device. The only network request is a one-time download of the model file you pick.
+  </p>
+
+  <h3>Cloud mode (your own API key)</h3>
+  <p>
+    When you choose a cloud provider, Abe sends your recording directly from your computer to that provider over HTTPS,
+    authenticated with your own API key. Voice Transform sends the selected text and your spoken instruction the same
+    way. Nothing passes through a server run by us. The provider processes your data under its own terms and policies,
+    which you agreed to when you created your key:
+  </p>
+  <ul>
+    <li>OpenAI: <a href="https://openai.com/policies/privacy-policy/">privacy policy</a> and <a href="https://platform.openai.com/docs/guides/your-data">API data controls</a>. OpenAI says API data is not used for training by default and may be retained for up to 30 days for abuse monitoring.</li>
+    <li>Groq: <a href="https://groq.com/privacy-policy/">privacy policy</a> and <a href="https://console.groq.com/docs/your-data">your data in GroqCloud</a>.</li>
+    <li>Custom endpoints: whoever runs that server. If it's your own machine, the data stays with you.</li>
+  </ul>
+
+  <h3>Your API key</h3>
+  <p>
+    Keys are stored in your operating system's secure credential store: Windows Credential Manager, the macOS Keychain,
+    or the Secret Service (for example GNOME Keyring or KWallet) on Linux. The key is only ever sent to the provider it
+    belongs to.
+  </p>
+
+  <h3>Data stored on your computer</h3>
+  <p>
+    Your settings, word dictionary and transcription history are stored locally by the app. You can clear your history
+    at any time in the app, and uninstalling Abe removes it. We have no copy.
+  </p>
+
+  <h3>Update checks</h3>
+  <p>
+    Abe checks for new versions by requesting a small release file from GitHub. GitHub sees your IP address and the
+    request, as it does for any download. No identifier or personal data is included.
+  </p>
+
+  <h2>Donations</h2>
+  <p>
+    Donations are handled by Stripe through a Stripe Payment Link. Stripe collects the payment details needed to process
+    your gift under the <a href="https://stripe.com/privacy">Stripe privacy policy</a>. We receive the information Stripe
+    shares with merchants, such as your name, email and the amount, and use it only for bookkeeping and to contact you
+    about that payment. We never see your full card number.
+  </p>
+
+  <h2 id="the-previous-hosted-service">The previous hosted service</h2>
+  <p>
+    Earlier versions of Abe were a paid, hosted service with user accounts, subscriptions and server-side transcription.
+    That service has been discontinued. Its servers are being shut down, and the account data it held (account details,
+    usage records, feedback and email logs), including backups, is being permanently deleted as part of that shutdown.
+    The current app does not contact those servers.
+  </p>
+  <p>
+    If you had an account and have a question about your data, email <a href={`mailto:${CONTACT_EMAIL}`}>{CONTACT_EMAIL}</a>.
+  </p>
+
+  <h2>Children</h2>
+  <p>Abe is a general-purpose tool and doesn't knowingly collect any data from anyone, including children.</p>
+
+  <h2>Verify it yourself</h2>
+  <p>
+    Abe is open source. You can read exactly what the app sends and where in the <a href={GITHUB_URL}>source code</a>.
+  </p>
+
+  <h2>Changes and contact</h2>
+  <p>
+    If this policy changes, we'll update the date at the top of this page and note the change in the
+    <a href="/changelog">changelog</a>. Questions: <a href={`mailto:${CONTACT_EMAIL}`}>{CONTACT_EMAIL}</a>.
+  </p>
+</LegalLayout>

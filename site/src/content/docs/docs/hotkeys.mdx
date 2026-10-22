@@ -1,0 +1,50 @@
+---
+title: Hotkeys and modes
+description: Abe's default global shortcuts, push-to-talk vs toggle, and how to change them.
+---
+
+import HotkeyTable from '../../../components/docs/HotkeyTable.astro';
+
+Abe is driven by global hotkeys that work in any app, even when Abe's window is closed.
+
+## Default hotkeys
+
+<HotkeyTable />
+
+The defaults use <kbd>Ctrl</kbd> + <kbd>Alt</kbd> combinations so they don't collide with common app shortcuts such as paste-as-plain-text or reopen-tab.
+
+## Push-to-talk vs toggle
+
+Choose in **Settings → Transcription → Push-to-Talk**.
+
+- **Push-to-talk (on, the default):** hold the hotkey while you speak and release it to stop. Best for short bursts and quick replies. Nothing is recorded unless you're holding the keys.
+- **Toggle (off):** press the hotkey once to start recording and again to stop. Better for long dictation where holding keys gets tiring.
+
+In both modes, recording also stops automatically at the **Max Duration** limit (5 minutes by default, see [Settings](/docs/settings#advanced)).
+
+## Paste last
+
+<kbd>Ctrl</kbd> + <kbd>Alt</kbd> + <kbd>V</kbd> inserts your most recent transcription again at the cursor. Handy when text landed in the wrong window, or you want the same sentence in two places.
+
+Paste Last remembers the latest transcription in memory only, so it's forgotten when Abe restarts. If there's nothing to paste yet, Abe shows **"No transcription to paste"**. Older transcriptions are in the app's [History](/docs/history) view.
+
+## Changing a hotkey
+
+1. Open **Settings** and find **Shortcuts**.
+2. Click the shortcut you want to change (**Record**, **Paste Last** or **Transform**).
+3. Press the new combination, then release all keys to save it.
+
+Shortcuts can use keyboard keys and mouse buttons, including the side buttons on many mice.
+
+### Tips for choosing a hotkey
+
+- Include at least one modifier (<kbd>Ctrl</kbd>, <kbd>Alt</kbd>/<kbd>Option</kbd>, <kbd>Shift</kbd>) so you don't trigger it while typing.
+- Avoid shortcuts your most-used apps already rely on.
+- For push-to-talk, pick something comfortable to hold with one hand.
+- A spare mouse side button makes a great push-to-talk key.
+
+## The recording overlay
+
+While you record, a small floating overlay shows a live level meter, then a spinner while your audio is transcribed. Transform recordings use a distinct colour so you can tell the two apart. When idle, a small pill shows Abe's status, for example **Ready** or **Local**.
+
+You can drag the overlay wherever you like and right-click it to lock or unlock its position. Turn it off, or reset its position, in **Settings → Advanced → Appearance**.

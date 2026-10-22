@@ -1,0 +1,29 @@
+---
+title: Costs
+description: What cloud transcription costs with each provider, with a calculator. Local mode is free.
+---
+
+import CostTable from '../../../components/docs/CostTable.astro';
+import CostCalculator from '../../../components/docs/CostCalculator.astro';
+
+**Abe is free.** It never charges you anything. In **Local** mode transcription costs nothing at all. In **Cloud** mode you pay your provider directly for the audio you send, at their list price. Abe adds nothing on top.
+
+## Prices
+
+<CostTable />
+
+Notes:
+
+- **Groq** bills a minimum of 10 seconds per request, so very short clips cost slightly more than the per-minute rate suggests. It's still a tiny amount.
+- You're only billed for audio you actually send: the time between pressing and releasing the hotkey (or between toggles).
+- Voice Transform uses a chat model: Groq's `openai/gpt-oss-120b` ($0.15 in / $0.60 out per million tokens) or OpenAI's `gpt-6-luna` ($0.10 in / $0.50 out). A typical transform is a few hundred tokens, a tiny fraction of a cent.
+
+## Calculator
+
+<CostCalculator />
+
+## Keeping costs down
+
+- **Use Groq** for the lowest cloud price (its free plan costs nothing), or **Local** for zero.
+- **Set a monthly spend limit** with your provider. See the [Groq](/docs/api-keys/groq#free-plan-billing-and-spend-limits) or [OpenAI](/docs/api-keys/openai#3-set-a-spend-limit-recommended) guide.
+- Release the hotkey when you're done talking; silence you record is still billed.

@@ -1,0 +1,143 @@
+---
+title: Use a custom endpoint
+description: Connect Abe to any OpenAI-compatible service, such as Ollama for offline Voice Transform, OpenRouter, or your own Whisper server.
+sidebar:
+  label: Custom endpoint
+---
+
+import { Steps, Tabs, TabItem } from '@astrojs/starlight/components';
+import Screenshot from '../../../../components/docs/Screenshot.astro';
+
+Besides Groq and OpenAI, Abe can talk to **any service that works like the OpenAI API**. Lots of tools do, including some that run entirely on your own computer. This page is for you if you want to:
+
+- **Keep Voice Transform offline** by running a language model on your computer with Ollama.
+- **Use a gateway** such as OpenRouter to pick from hundreds of chat models.
+- **Run your own Whisper server**, for example on a home server with a GPU.
+
+If you just want something that works with the least effort, use [Groq](/docs/api-keys/groq) instead.
+
+:::note[Last verified 2026-10-22]
+The tools below change often. If a command or menu name has changed, their own documentation (linked in each section) is the reference. If something is clearly out of date here, please [tell us on GitHub](https://github.com/HardHeadHackerHead/honest-abe/issues).
+:::
+
+## What Abe needs from a custom endpoint
+
+You give Abe three things:
+
+| Field | What it is | Example |
+|---|---|---|
+| **Base URL** | The address of the service, usually ending in `/v1` | `http://localhost:11434/v1` |
+| **Model** | The exact model name the service expects | `llama3.2` |
+| **API key** | The service's key. Local tools that don't check keys accept any text | `ollama` |
+
+What the service has to support depends on the feature:
+
+- **Dictation** needs a speech-to-text endpoint (`/v1/audio/transcriptions`). Most chat services, including Ollama and OpenRouter, **don't** offer this.
+- **Voice Transform** needs a chat endpoint (`/v1/chat/completions`). Almost every OpenAI-compatible service offers this.
+
+So a common setup is **Local** transcription in Abe plus a custom endpoint for Voice Transform. Voice Transform always needs a cloud or custom provider, even when you transcribe locally.
+
+## Pick your setup
+
+<Tabs>
+<TabItem label="Ollama (offline Transform)">
+
+[Ollama](https://ollama.com/) runs language models on your own computer. Combined with Abe's Local transcription, nothing you say or select ever leaves your machine. It's free; you need a reasonably modern computer (8 GB of RAM or more).
+
+<Steps>
+
+1. Download and install Ollama from [ollama.com/download](https://ollama.com/download), then start it.
+
+2. Download a model. Open a terminal (on Windows, **PowerShell**; on a Mac, **Terminal**) and run:
+
+   ```sh
+   ollama pull llama3.2
+   ```
+
+   `llama3.2` is small and quick. If your computer has plenty of memory, larger models such as `gpt-oss` or `qwen3` give better rewrites. Browse the [Ollama library](https://ollama.com/library) for others.
+
+3. In Abe, open **Settings** and set the **Transform** provider to **Custom (OpenAI-compatible)**.
+
+4. Enter:
+   - **Base URL:** `http://localhost:11434/v1`
+   - **Model:** `llama3.2` (or the model you downloaded)
+   - **API key:** any text, such as `ollama`. Ollama requires a value but ignores it.
+
+5. Click **Test**. Abe confirms the connection works.
+
+</Steps>
+
+Ollama doesn't do speech-to-text, so keep transcription on **Local** (or Groq/OpenAI). Details: [Ollama's OpenAI compatibility docs](https://docs.ollama.com/api/openai-compatibility).
+
+</TabItem>
+<TabItem label="OpenRouter (hosted Transform)">
+
+[OpenRouter](https://openrouter.ai/) gives you one key for hundreds of chat models from many companies. It's pay as you go: you add credit first.
+
+<Steps>
+
+1. Create an account at [openrouter.ai](https://openrouter.ai/).
+
+2. Add credit on the **Credits** page ([openrouter.ai/settings/credits](https://openrouter.ai/settings/credits)). OpenRouter charges a small fee on credit purchases.
+
+3. Create a key on the **Keys** page ([openrouter.ai/keys](https://openrouter.ai/keys)). Give it a name such as `Abe` and set a **credit limit**, for example $5, so the key can never spend more than that. Copy the key; treat it like a password.
+
+4. In Abe, open **Settings** and set the **Transform** provider to **Custom (OpenAI-compatible)**.
+
+5. Enter:
+   - **Base URL:** `https://openrouter.ai/api/v1`
+   - **Model:** a model ID from [openrouter.ai/models](https://openrouter.ai/models), for example `openai/gpt-oss-120b`
+   - **API key:** the key you just copied
+
+6. Click **Test**. Abe confirms the key works.
+
+</Steps>
+
+OpenRouter is for Voice Transform; it doesn't offer Abe's speech-to-text endpoint. Details: [OpenRouter quickstart](https://openrouter.ai/docs/quickstart).
+
+</TabItem>
+<TabItem label="Your own Whisper server">
+
+For dictation through your own server, use a Whisper server with an OpenAI-compatible API. [Speaches](https://speaches.ai/) (formerly faster-whisper-server) is a popular choice; [LocalAI](https://localai.io/) also works. This option is for people comfortable with Docker or the command line.
+
+<Steps>
+
+1. Start Speaches with Docker, following [its installation guide](https://speaches.ai/installation/). The CPU version is:
+
+   ```sh
+   docker run --rm --detach --publish 8000:8000 --name speaches \
+     --volume hf-hub-cache:/home/ubuntu/.cache/huggingface/hub \
+     ghcr.io/speaches-ai/speaches:latest-cpu
+   ```
+
+2. Download a Whisper model into it, for example `Systran/faster-whisper-small`, as described in [Speaches' speech-to-text guide](https://speaches.ai/usage/speech-to-text/).
+
+3. In Abe, open **Settings → Transcription**, choose **Use my own API key**, then pick **Custom (OpenAI-compatible)**.
+
+4. Enter:
+   - **Base URL:** `http://localhost:8000/v1` (use your server's address if it runs on another computer)
+   - **Model:** `Systran/faster-whisper-small`
+   - **API key:** any text, unless you configured one on the server
+
+5. Click **Test**. Abe confirms the connection works.
+
+</Steps>
+
+</TabItem>
+</Tabs>
+
+<Screenshot src="/docs/img/custom-1.png" alt="Abe's settings with a custom OpenAI-compatible endpoint configured" caption="A custom endpoint in Abe's settings." />
+
+## Troubleshooting
+
+| Abe says | What it means | What to do |
+|---|---|---|
+| **"Couldn't reach the provider. Check your connection."** | Nothing answered at the base URL | Make sure the server (or Ollama) is running. Check the base URL, including `http://` and the `/v1` at the end. |
+| **"The selected model is not available. Check Settings."** | The server doesn't know that model name | Copy the name exactly. For Ollama, run `ollama list` to see your models. |
+| **"Your API key was rejected. Check it in Settings."** | The service checks keys and yours is wrong | Paste the key again, or create a new one with the service. |
+| **"Your provider account is out of credit."** | A paid gateway such as OpenRouter has no credit left, or the key hit its credit limit | Add credit or raise the key's limit. |
+| **"The provider is rate limiting you. Try again in a moment."** | The service is limiting requests | Wait a moment and try again. |
+| **"The provider took too long to respond."** | The model is slow on your hardware, or it's still loading | Try again; the first request after starting Ollama loads the model and takes longer. A smaller model helps. |
+| **"This recording is too long for the provider."** | The server rejected the size of the recording | Keep recordings shorter, or raise the server's upload limit. |
+
+To stop using a custom endpoint, switch the provider back in **Settings**, and delete any key you created on the service's website.

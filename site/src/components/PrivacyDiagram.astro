@@ -1,0 +1,163 @@
+---
+/**
+ * Where your audio goes. Two layouts of the same diagram: wide for tablets and
+ * up, stacked for phones. Text inside is real SVG text, so it scales crisply.
+ */
+---
+
+<figure class="privacy-diagram m-0">
+  <figcaption class="sr-only">
+    Your microphone sends audio to the Abe app on your computer. From there it goes either to Whisper running locally on
+    the same computer, or over HTTPS, with your own key, straight to the provider you chose: OpenAI, Groq or a custom
+    endpoint. There is no Abe server anywhere in the path.
+  </figcaption>
+
+  <!-- Wide -->
+  <svg class="wide" viewBox="0 0 960 380" role="presentation" aria-hidden="true" font-family="var(--abe-font-sans)">
+    <defs>
+      <marker id="arw-p" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+        <path d="M0 0 10 5 0 10z" fill="#aec6ff"></path>
+      </marker>
+      <marker id="arw-t" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+        <path d="M0 0 10 5 0 10z" fill="#4edea3"></path>
+      </marker>
+    </defs>
+
+    <!-- Your computer -->
+    <rect x="250" y="20" width="390" height="340" rx="22" fill="#191c22" stroke="rgb(140 144 159 / 0.14)"></rect>
+    <text x="276" y="54" class="cap">YOUR COMPUTER</text>
+
+    <!-- Mic -->
+    <rect x="30" y="140" width="170" height="84" rx="16" fill="#272a31"></rect>
+    <g transform="translate(52 164)" stroke="#aec6ff" stroke-width="1.8" fill="none" stroke-linecap="round">
+      <rect x="9" y="2" width="6" height="12" rx="3"></rect><path d="M19 10v1a7 7 0 0 1-14 0v-1M12 18v4"></path>
+    </g>
+    <text x="88" y="178" class="t">Your mic</text>
+    <text x="88" y="200" class="s">Push-to-talk</text>
+
+    <!-- Abe app -->
+    <rect x="276" y="74" width="338" height="104" rx="16" fill="#272a31"></rect>
+    <image href="/logo.png" x="298" y="100" width="40" height="40"></image>
+    <text x="352" y="116" class="t">Abe app</text>
+    <text x="352" y="138" class="s">Audio stays in memory</text>
+    <text x="352" y="158" class="s">API key in the OS keychain</text>
+
+    <!-- Local Whisper -->
+    <rect x="276" y="226" width="338" height="104" rx="16" fill="#1f2b28"></rect>
+    <g transform="translate(298 256)" stroke="#4edea3" stroke-width="1.8" fill="none" stroke-linecap="round" stroke-linejoin="round">
+      <rect x="5" y="5" width="14" height="14" rx="2"></rect><rect x="9" y="9" width="6" height="6"></rect><path d="M9 1v4M15 1v4M9 19v4M15 19v4M1 9h4M1 15h4M19 9h4M19 15h4"></path>
+    </g>
+    <text x="352" y="266" class="t">Local Whisper</text>
+    <text x="352" y="288" class="s g">Offline. Free. Audio never leaves.</text>
+    <text x="352" y="308" class="s">Option A</text>
+
+    <!-- Provider -->
+    <rect x="720" y="74" width="214" height="104" rx="16" fill="#272a31"></rect>
+    <g transform="translate(742 96)" stroke="#aec6ff" stroke-width="1.8" fill="none" stroke-linecap="round" stroke-linejoin="round">
+      <path d="M17.5 19H8a6 6 0 1 1 5.7-7.9A4.5 4.5 0 1 1 17.5 19Z"></path>
+    </g>
+    <text x="776" y="114" class="t">Your provider</text>
+    <text x="742" y="144" class="s">OpenAI, Groq or custom</text>
+    <text x="742" y="164" class="s">Option B, under their policy</text>
+
+    <!-- No Abe server -->
+    <rect x="720" y="226" width="214" height="104" rx="16" fill="none" stroke="#424754" stroke-width="1.5" stroke-dasharray="6 6"></rect>
+    <text x="742" y="266" class="t muted strike">Abe server</text>
+    <line x1="742" y1="261" x2="842" y2="261" stroke="#ffb4ab" stroke-width="2"></line>
+    <text x="742" y="290" class="s">Doesn't exist.</text>
+    <text x="742" y="310" class="s">No accounts, no relay.</text>
+
+    <!-- Flows -->
+    <path class="flow" d="M200 182 C 236 182, 240 126, 274 126" stroke="#aec6ff" marker-end="url(#arw-p)"></path>
+    <path class="flow t-flow" d="M445 180 L 445 222" stroke="#4edea3" marker-end="url(#arw-t)"></path>
+    <path class="flow" d="M614 126 L 716 126" stroke="#aec6ff" marker-end="url(#arw-p)"></path>
+    <text x="667" y="108" class="s tiny" text-anchor="middle">HTTPS +</text>
+    <text x="667" y="150" class="s tiny" text-anchor="middle">your key</text>
+  </svg>
+
+  <!-- Stacked (phones) -->
+  <svg class="tall" viewBox="0 0 340 720" role="presentation" aria-hidden="true" font-family="var(--abe-font-sans)">
+    <defs>
+      <marker id="arw-p2" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+        <path d="M0 0 10 5 0 10z" fill="#aec6ff"></path>
+      </marker>
+      <marker id="arw-t2" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+        <path d="M0 0 10 5 0 10z" fill="#4edea3"></path>
+      </marker>
+    </defs>
+    <rect x="20" y="10" width="300" height="76" rx="16" fill="#272a31"></rect>
+    <g transform="translate(40 30)" stroke="#aec6ff" stroke-width="1.8" fill="none" stroke-linecap="round">
+      <rect x="9" y="2" width="6" height="12" rx="3"></rect><path d="M19 10v1a7 7 0 0 1-14 0v-1M12 18v4"></path>
+    </g>
+    <text x="80" y="44" class="t">Your mic</text>
+    <text x="80" y="66" class="s">Push-to-talk</text>
+
+    <rect x="10" y="120" width="320" height="300" rx="22" fill="#191c22" stroke="rgb(140 144 159 / 0.14)"></rect>
+    <text x="32" y="152" class="cap">YOUR COMPUTER</text>
+    <rect x="30" y="168" width="280" height="96" rx="16" fill="#272a31"></rect>
+    <image href="/logo.png" x="48" y="192" width="36" height="36"></image>
+    <text x="98" y="200" class="t">Abe app</text>
+    <text x="98" y="222" class="s">Audio stays in memory</text>
+    <text x="98" y="242" class="s">Key in the OS keychain</text>
+
+    <rect x="30" y="304" width="280" height="96" rx="16" fill="#1f2b28"></rect>
+    <g transform="translate(48 330)" stroke="#4edea3" stroke-width="1.8" fill="none" stroke-linecap="round" stroke-linejoin="round">
+      <rect x="5" y="5" width="14" height="14" rx="2"></rect><rect x="9" y="9" width="6" height="6"></rect><path d="M9 1v4M15 1v4M9 19v4M15 19v4M1 9h4M1 15h4M19 9h4M19 15h4"></path>
+    </g>
+    <text x="98" y="338" class="t">Local Whisper</text>
+    <text x="98" y="360" class="s g">Offline. Free.</text>
+    <text x="98" y="380" class="s">Option A</text>
+
+    <rect x="20" y="480" width="300" height="96" rx="16" fill="#272a31"></rect>
+    <g transform="translate(40 504)" stroke="#aec6ff" stroke-width="1.8" fill="none" stroke-linecap="round" stroke-linejoin="round">
+      <path d="M17.5 19H8a6 6 0 1 1 5.7-7.9A4.5 4.5 0 1 1 17.5 19Z"></path>
+    </g>
+    <text x="80" y="514" class="t">Your provider</text>
+    <text x="80" y="536" class="s">OpenAI, Groq or custom</text>
+    <text x="80" y="556" class="s">Option B, under their policy</text>
+
+    <rect x="20" y="604" width="300" height="96" rx="16" fill="none" stroke="#424754" stroke-width="1.5" stroke-dasharray="6 6"></rect>
+    <text x="40" y="640" class="t muted">Abe server</text>
+    <line x1="40" y1="635" x2="138" y2="635" stroke="#ffb4ab" stroke-width="2"></line>
+    <text x="40" y="664" class="s">Doesn't exist. No accounts,</text>
+    <text x="40" y="684" class="s">no relay, no logs.</text>
+
+    <path class="flow" d="M170 86 L 170 164" stroke="#aec6ff" marker-end="url(#arw-p2)"></path>
+    <path class="flow t-flow" d="M170 264 L 170 300" stroke="#4edea3" marker-end="url(#arw-t2)"></path>
+    <path class="flow" d="M300 216 C 352 216, 352 470, 300 520" stroke="#aec6ff" marker-end="url(#arw-p2)" transform="translate(-6 0)"></path>
+    <text x="200" y="452" class="s tiny">HTTPS + your key</text>
+  </svg>
+</figure>
+
+<style>
+  .privacy-diagram svg {
+    width: 100%;
+    height: auto;
+    display: block;
+    overflow: visible;
+  }
+  .tall { display: none !important; max-width: 26rem; margin-inline: auto; }
+  @media (max-width: 720px) {
+    .wide { display: none !important; }
+    .tall { display: block !important; }
+  }
+  .cap { font-size: 12px; font-weight: 600; letter-spacing: 0.14em; fill: #8c909f; }
+  .t { font-size: 17px; font-weight: 600; fill: #e1e2eb; }
+  .t.muted { fill: #8c909f; }
+  .s { font-size: 13.5px; fill: #c2c6d6; }
+  .s.g { fill: #4edea3; }
+  .s.tiny { font-size: 12px; fill: #aec6ff; }
+  .flow {
+    fill: none;
+    stroke-width: 2.25;
+    stroke-linecap: round;
+    stroke-dasharray: 7 7;
+    animation: flow 1.2s linear infinite;
+  }
+  @keyframes flow {
+    to { stroke-dashoffset: -28; }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .flow { animation: none; stroke-dasharray: none; }
+  }
+</style>

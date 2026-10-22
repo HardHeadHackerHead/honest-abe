@@ -1,0 +1,140 @@
+@import 'tailwindcss';
+@import './tokens.css';
+
+/* Expose the tokens to Tailwind utilities (bg-surface, text-primary, ...). */
+@theme inline {
+  --color-surface-lowest: var(--abe-surface-lowest);
+  --color-surface: var(--abe-surface);
+  --color-surface-low: var(--abe-surface-low);
+  --color-surface-container: var(--abe-surface-container);
+  --color-surface-high: var(--abe-surface-high);
+  --color-surface-highest: var(--abe-surface-highest);
+  --color-surface-bright: var(--abe-surface-bright);
+  --color-primary: var(--abe-primary);
+  --color-primary-container: var(--abe-primary-container);
+  --color-primary-fixed: var(--abe-primary-fixed);
+  --color-on-primary: var(--abe-on-primary);
+  --color-secondary: var(--abe-secondary);
+  --color-tertiary: var(--abe-tertiary);
+  --color-tertiary-container: var(--abe-tertiary-container);
+  --color-error: var(--abe-error);
+  --color-on-surface: var(--abe-on-surface);
+  --color-on-surface-variant: var(--abe-on-surface-variant);
+  --color-outline: var(--abe-outline);
+  --color-outline-variant: var(--abe-outline-variant);
+  --font-sans: var(--abe-font-sans);
+  --font-mono: var(--abe-font-mono);
+  --shadow-ambient: var(--abe-shadow-ambient);
+  --shadow-glow-primary: var(--abe-glow-primary);
+  --shadow-glow-tertiary: var(--abe-glow-tertiary);
+}
+
+@layer base {
+  html {
+    background: var(--abe-surface);
+    color: var(--abe-on-surface-variant);
+    font-family: var(--abe-font-sans);
+    font-feature-settings: 'cv11', 'ss01', 'ss03';
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    text-rendering: optimizeLegibility;
+    scroll-behavior: smooth;
+  }
+  body {
+    min-height: 100dvh;
+    overflow-x: clip;
+  }
+  h1, h2, h3, h4 {
+    color: var(--abe-on-surface);
+    text-wrap: balance;
+    letter-spacing: -0.02em;
+  }
+  p { text-wrap: pretty; }
+  /* Let grid children shrink below their content width (long code lines etc.). */
+  .grid > * { min-width: 0; }
+  ::selection { background: rgb(80 142 255 / 0.35); color: var(--abe-on-surface); }
+  :focus-visible {
+    outline: 2px solid var(--abe-primary);
+    outline-offset: 3px;
+    border-radius: 6px;
+  }
+  @media (prefers-reduced-motion: reduce) {
+    html { scroll-behavior: auto; }
+    *, *::before, *::after {
+      animation-duration: 0.01ms !important;
+      animation-iteration-count: 1 !important;
+      transition-duration: 0.01ms !important;
+    }
+  }
+}
+
+@layer components {
+  .label {
+    font-size: 0.72rem;
+    font-weight: 600;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--abe-primary);
+  }
+  .btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.6rem;
+    min-height: 2.9rem;
+    padding: 0.7rem 1.25rem;
+    border-radius: 0.6rem;
+    font-weight: 600;
+    font-size: 0.95rem;
+    line-height: 1.2;
+    text-decoration: none;
+    transition: transform 0.2s ease, box-shadow 0.2s ease, background-color 0.2s ease, color 0.2s ease;
+    white-space: nowrap;
+  }
+  .btn-primary {
+    background: var(--abe-gradient-primary);
+    color: var(--abe-on-primary);
+    box-shadow: var(--abe-glow-primary), inset 0 1px 0 rgb(255 255 255 / 0.35);
+  }
+  .btn-primary:hover { transform: translateY(-1px); box-shadow: 0 14px 48px rgb(80 142 255 / 0.4), inset 0 1px 0 rgb(255 255 255 / 0.35); }
+  .btn-ghost {
+    background: rgb(50 53 60 / 0.55);
+    color: var(--abe-on-surface);
+    box-shadow: inset 0 0 0 1px var(--abe-ghost-border);
+  }
+  .btn-ghost:hover { background: var(--abe-surface-highest); }
+  .glass {
+    background: var(--abe-glass);
+    backdrop-filter: blur(20px) saturate(140%);
+    -webkit-backdrop-filter: blur(20px) saturate(140%);
+  }
+  .card {
+    background: var(--abe-surface-low);
+    border-radius: 1rem;
+    box-shadow: inset 0 1px 0 rgb(255 255 255 / 0.03);
+  }
+  .kbd {
+    display: inline-flex;
+    align-items: center;
+    min-width: 1.6em;
+    justify-content: center;
+    padding: 0.1em 0.45em;
+    border-radius: 0.35rem;
+    background: var(--abe-surface-highest);
+    box-shadow: inset 0 -2px 0 rgb(0 0 0 / 0.35);
+    font-family: var(--abe-font-mono);
+    font-size: 0.82em;
+    color: var(--abe-on-surface);
+    white-space: nowrap;
+  }
+  .prose-abe a { color: var(--abe-primary); text-underline-offset: 3px; }
+  .prose-abe a:hover { text-decoration-thickness: 2px; }
+  .prose-abe h2 { font-size: 1.5rem; font-weight: 650; margin-top: 2.5rem; margin-bottom: 0.75rem; }
+  .prose-abe h3 { font-size: 1.15rem; font-weight: 600; margin-top: 1.75rem; margin-bottom: 0.5rem; }
+  .prose-abe p, .prose-abe ul, .prose-abe ol { margin-top: 0.85rem; line-height: 1.75; }
+  .prose-abe ul { list-style: disc; padding-left: 1.25rem; }
+  .prose-abe ol { list-style: decimal; padding-left: 1.25rem; }
+  .prose-abe li { margin-top: 0.35rem; }
+  .prose-abe strong { color: var(--abe-on-surface); font-weight: 600; }
+  .prose-abe code { font-family: var(--abe-font-mono); font-size: 0.88em; background: var(--abe-surface-high); padding: 0.1em 0.35em; border-radius: 0.3rem; color: var(--abe-on-surface); }
+}

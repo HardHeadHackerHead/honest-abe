@@ -1,0 +1,29 @@
+---
+import type { FaqItem } from '../data/faq';
+import Icon from './Icon.astro';
+
+interface Props {
+  items: FaqItem[];
+}
+const { items } = Astro.props;
+---
+
+<div class="faq flex flex-col gap-3">
+  {
+    items.map((item) => (
+      <details class="group rounded-2xl bg-surface-low transition-colors open:bg-surface-container">
+        <summary class="flex cursor-pointer list-none items-center justify-between gap-6 rounded-2xl px-6 py-5 text-left font-medium text-on-surface">
+          <span>{item.q}</span>
+          <Icon name="plus" size={18} class="shrink-0 text-primary transition-transform duration-300 group-open:rotate-45" />
+        </summary>
+        <div class="prose-abe px-6 pb-6 -mt-1 text-[0.95rem]">
+          <p class="!mt-0" set:html={item.a} />
+        </div>
+      </details>
+    ))
+  }
+</div>
+
+<style>
+  summary::-webkit-details-marker { display: none; }
+</style>

@@ -1,0 +1,30 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import Icon from '../components/Icon.astro';
+---
+
+<BaseLayout title="Page not found" description="This page doesn't exist." noindex>
+  <section class="relative mx-auto flex max-w-3xl flex-col items-center px-4 pb-10 pt-24 text-center sm:px-6 sm:pt-32">
+    <div class="pill-404 glass inline-flex items-center gap-3 rounded-full px-5 py-3" aria-hidden="true">
+      <span class="h-2.5 w-2.5 rounded-full bg-error"></span>
+      <span class="font-mono text-sm text-on-surface">404</span>
+      <span class="text-sm text-outline">Didn't catch that</span>
+    </div>
+    <h1 class="mt-10 text-4xl font-semibold tracking-[-0.035em] sm:text-6xl">We couldn't find that page.</h1>
+    <p class="mt-5 max-w-xl text-lg leading-relaxed">
+      It may have moved when Abe became free and open source. Accounts, plans and dashboards are gone; everything else is
+      a click away.
+    </p>
+    <div class="mt-10 flex flex-wrap justify-center gap-3">
+      <a href="/" class="btn btn-primary">Back home</a>
+      <a href="/download" class="btn btn-ghost"><Icon name="download" size={18} /> Download</a>
+      <a href="/docs" class="btn btn-ghost"><Icon name="book" size={18} /> Docs</a>
+    </div>
+  </section>
+</BaseLayout>
+
+<style>
+  .pill-404 {
+    box-shadow: 0 0 0 1px rgb(255 180 171 / 0.25), 0 18px 50px rgb(3 8 22 / 0.5);
+  }
+</style>

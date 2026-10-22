@@ -1,0 +1,87 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import Icon from '../components/Icon.astro';
+import GitHubIcon from '../components/GitHubIcon.astro';
+import { DONATE_URL, GITHUB_URL, GITHUB_ISSUES_URL, CONTACT_EMAIL } from '../config/site';
+
+const funds = [
+  { icon: 'shield', title: 'Code-signing certificates', body: 'So Windows and macOS trust the installer instead of warning you away from it.' },
+  { icon: 'laptop', title: 'Apple Developer Program', body: 'The yearly fee that lets us sign and notarize the macOS app.' },
+  { icon: 'globe', title: 'The domain', body: 'Keeping getabe.app registered, including for older installs that still point at it.' },
+  { icon: 'code', title: 'Development time', body: 'Fixing bugs, supporting new platforms and providers, answering issues.' },
+] as const;
+---
+
+<BaseLayout title="Donate" description="Abe is free and funded by donations. Here's what your support pays for.">
+  <section class="relative overflow-hidden" aria-labelledby="donate-title">
+    <div class="donate-bg" aria-hidden="true"></div>
+    <div class="relative mx-auto max-w-4xl px-4 pt-16 text-center sm:px-6 sm:pt-24">
+      <p class="label">Support Abe</p>
+      <h1 id="donate-title" class="mx-auto mt-3 max-w-3xl text-4xl font-semibold tracking-[-0.035em] sm:text-6xl">
+        Free for everyone, because some people chip in.
+      </h1>
+      <p class="mx-auto mt-6 max-w-2xl text-lg leading-relaxed">
+        Abe has no subscription, no ads and no data to sell. If it saves you time every day, a one-off donation keeps it
+        that way.
+      </p>
+      <div class="mt-10 flex flex-col items-center gap-3">
+        <a href={DONATE_URL} class="btn btn-primary !min-h-[3.6rem] !px-8 !text-base">
+          <Icon name="heart" size={20} /> Donate with Stripe
+        </a>
+        <p class="text-xs text-outline">Secure checkout by Stripe. Any amount helps.</p>
+      </div>
+    </div>
+  </section>
+
+  <section class="mx-auto mt-24 max-w-5xl px-4 sm:px-6" aria-labelledby="funds-title">
+    <h2 id="funds-title" class="text-2xl font-semibold tracking-tight sm:text-3xl">Where the money goes</h2>
+    <ul class="mt-8 grid gap-4 sm:grid-cols-2">
+      {
+        funds.map((f) => (
+          <li class="card flex gap-5 p-7">
+            <span class="inline-flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-surface-high text-primary">
+              <Icon name={f.icon} />
+            </span>
+            <div>
+              <h3 class="font-semibold">{f.title}</h3>
+              <p class="mt-1.5 leading-relaxed">{f.body}</p>
+            </div>
+          </li>
+        ))
+      }
+    </ul>
+  </section>
+
+  <section class="mx-auto mt-16 max-w-5xl px-4 sm:px-6" aria-labelledby="fine-print">
+    <div class="grid gap-4 lg:grid-cols-[1.3fr_1fr]">
+      <div class="rounded-2xl bg-surface-lowest p-7 sm:p-9">
+        <h2 id="fine-print" class="text-lg font-semibold">The fine print</h2>
+        <ul class="prose-abe mt-2 text-[0.95rem]">
+          <li>Donations are <strong>voluntary gifts</strong>. They don't buy a product, a license, support or any feature; Abe is the same for everyone.</li>
+          <li>Donations are <strong>not tax-deductible</strong>. Abe is not a registered charity.</li>
+          <li>Donations are <strong>non-refundable</strong>. If something went wrong with a payment, email <a href={`mailto:${CONTACT_EMAIL}`}>{CONTACT_EMAIL}</a>.</li>
+          <li>Payments are processed by Stripe under <a href="https://stripe.com/privacy">Stripe's privacy policy</a>. We never see your card details.</li>
+        </ul>
+      </div>
+      <div class="card p-7 sm:p-9">
+        <h2 class="text-lg font-semibold">Other ways to help</h2>
+        <ul class="mt-4 space-y-3 text-[0.95rem]">
+          <li><a href={GITHUB_URL} class="inline-flex items-center gap-2 text-primary hover:underline"><GitHubIcon size={16} /> Star the repo</a></li>
+          <li><a href={GITHUB_ISSUES_URL} class="inline-flex items-center gap-2 text-primary hover:underline"><Icon name="code" size={16} /> Report bugs or send a pull request</a></li>
+          <li><a href="/docs/contributing" class="inline-flex items-center gap-2 text-primary hover:underline"><Icon name="book" size={16} /> Improve the docs</a></li>
+          <li class="flex items-center gap-2"><Icon name="heart" size={16} class="text-error" /> Tell a friend who types too much</li>
+        </ul>
+      </div>
+    </div>
+  </section>
+</BaseLayout>
+
+<style>
+  .donate-bg {
+    position: absolute;
+    inset: 0;
+    background:
+      radial-gradient(40% 60% at 50% 0%, rgb(255 180 171 / 0.1), transparent 70%),
+      radial-gradient(50% 60% at 50% 10%, rgb(80 142 255 / 0.1), transparent 70%);
+  }
+</style>

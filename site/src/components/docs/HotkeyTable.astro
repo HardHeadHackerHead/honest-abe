@@ -1,0 +1,28 @@
+---
+import { HOTKEYS } from '../../data/hotkeys';
+
+const keys = (list: string[]) => list.map((k) => `<kbd>${k}</kbd>`).join(' + ');
+---
+
+<table>
+  <thead>
+    <tr>
+      <th scope="col">Action</th>
+      <th scope="col">Windows / Linux</th>
+      <th scope="col">macOS</th>
+      <th scope="col">What it does</th>
+    </tr>
+  </thead>
+  <tbody>
+    {
+      HOTKEYS.map((h) => (
+        <tr>
+          <td><strong>{h.action}</strong></td>
+          <td style="white-space:nowrap" set:html={keys(h.windows)} />
+          <td style="white-space:nowrap" set:html={keys(h.macos)} />
+          <td>{h.description}</td>
+        </tr>
+      ))
+    }
+  </tbody>
+</table>

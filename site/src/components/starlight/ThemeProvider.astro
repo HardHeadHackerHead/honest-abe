@@ -1,0 +1,8 @@
+---
+// Abe is dark-only: pin Starlight to its dark theme so docs match the marketing pages.
+---
+
+<script is:inline>
+	document.documentElement.dataset.theme = 'dark';
+	window.StarlightThemeProvider = { updatePickers() {} };
+</script>

@@ -1,0 +1,64 @@
+[package]
+name = "abe"
+version = "1.0.0"
+description = "Free, open-source voice-to-text for your desktop, with local Whisper or your own API key"
+authors = ["Quads Lab"]
+license = "AGPL-3.0-or-later"
+repository = "https://github.com/HardHeadHackerHead/honest-abe"
+homepage = "https://getabe.app"
+edition = "2021"
+
+[build-dependencies]
+tauri-build = { version = "2", features = [] }
+
+[dependencies]
+tauri = { version = "2", features = ["macos-private-api", "tray-icon", "image-png"] }
+tauri-plugin-single-instance = "2"
+tauri-plugin-process = "2"
+tauri-plugin-opener = "2"
+tauri-plugin-os = "2"
+tauri-plugin-dialog = "2"
+tauri-plugin-updater = { version = "2", optional = true }
+serde = { version = "1.0", features = ["derive"] }
+serde_json = "1.0"
+cpal = "0.15"
+hound = "3.5"
+rubato = "0.15"
+arboard = "3.2"
+lazy_static = "1.4"
+enigo = "0.2"
+device_query = "2.1"
+# Transcription engine: provider HTTP (rustls with the ring provider, no OpenSSL),
+# keychain storage for API keys, local Whisper and model verification
+reqwest = { version = "0.13", default-features = false, features = ["rustls-no-provider", "http2", "charset", "system-proxy", "json", "multipart", "stream"] }
+rustls = { version = "0.23", default-features = false, features = ["ring", "std", "tls12"] }
+tokio = { version = "1", features = ["fs", "io-util", "macros", "rt", "time"] }
+futures-util = "0.3"
+keyring = { version = "3.6", features = ["apple-native", "windows-native", "sync-secret-service", "crypto-rust"] }
+whisper-rs = "0.16"
+sha2 = "0.10"
+
+[target.'cfg(target_os = "macos")'.dependencies]
+core-graphics = "0.23"
+core-foundation = "0.9"
+
+[target.'cfg(target_os = "windows")'.dependencies]
+rdev = "0.5"
+windows = { version = "0.58", features = [
+    "Win32_Media_Audio",
+    "Win32_System_Com",
+    "Win32_Foundation",
+] }
+
+[dev-dependencies]
+wiremock = "0.6"
+tokio = { version = "1", features = ["macros", "rt-multi-thread"] }
+
+[features]
+# Auto-update from the official release feed. Off by default so source builds
+# and forks never pull official binaries; the release scripts turn it on.
+updater = ["dep:tauri-plugin-updater"]
+# GPU acceleration for local Whisper (CPU is the default)
+metal = ["whisper-rs/metal"]
+vulkan = ["whisper-rs/vulkan"]
+cuda = ["whisper-rs/cuda"]

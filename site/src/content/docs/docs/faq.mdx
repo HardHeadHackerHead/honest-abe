@@ -1,0 +1,33 @@
+---
+title: FAQ
+description: Frequently asked questions about Abe.
+---
+
+import { FAQ } from '../../../data/faq';
+
+{FAQ.map((item) => (
+  <>
+    <h2>{item.q}</h2>
+    <p set:html={item.a} />
+  </>
+))}
+
+## Does Abe work offline?
+
+Yes, in Local mode. Once the model is downloaded, transcription works with no internet connection at all. Cloud mode, and Voice Transform with a cloud provider, need a connection.
+
+## What happened to accounts and subscriptions?
+
+Earlier versions of Abe were a paid, hosted service. Abe is now free and open source with no accounts, so there's nothing to sign in to. The old hosted service has been discontinued; see the [privacy policy](/privacy#the-previous-hosted-service) for what happens to its data.
+
+## Can I use Abe at work?
+
+Yes. Abe is free for any use, including commercial use. Because there's no Abe server, you can pick a provider your organisation already approves, or keep everything on-device with Local mode. If you modify Abe and distribute it, the AGPL requires you to share your changes under the same license.
+
+## Which languages does it support?
+
+Abe offers **Auto-detect** plus 28 languages in **Settings → Transcription → Language**. Choosing your language explicitly gives the best accuracy.
+
+## Why does my antivirus or OS warn me about Abe?
+
+Abe simulates keyboard input to type into other apps, which some security tools flag, and brand-new releases haven't built up reputation with Windows SmartScreen yet. See [Download](/download) for first-run notes. If in doubt, [build it yourself](/docs/building-from-source).
