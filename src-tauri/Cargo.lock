@@ -7,7 +7,7 @@ name = "abe"
 version = "1.0.0"
 dependencies = [
  "arboard",
- "core-foundation 0.9.4",
+ "core-foundation 0.10.1",
  "core-graphics 0.23.2",
  "cpal",
  "device_query",
