@@ -27,7 +27,7 @@ rubato = "0.15"
 arboard = "3.2"
 lazy_static = "1.4"
 enigo = "0.2"
-device_query = "2.1"
+device_query = "4.0"
 # Transcription engine: provider HTTP (rustls with the ring provider, no OpenSSL),
 # keychain storage for API keys, local Whisper and model verification
 reqwest = { version = "0.13", default-features = false, features = ["rustls-no-provider", "http2", "charset", "system-proxy", "json", "multipart", "stream"] }
