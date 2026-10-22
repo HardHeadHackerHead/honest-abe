@@ -36,7 +36,7 @@ tokio = { version = "1", features = ["fs", "io-util", "macros", "rt", "time"] }
 futures-util = "0.3"
 keyring = { version = "3.6", features = ["apple-native", "windows-native", "sync-secret-service", "crypto-rust"] }
 whisper-rs = "0.16"
-sha2 = "0.10"
+sha2 = "0.11"
 
 [target.'cfg(target_os = "macos")'.dependencies]
 core-graphics = "0.23"
