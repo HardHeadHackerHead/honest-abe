@@ -100,7 +100,7 @@ export default function useRecording({
         await invoke('paste_text', { text: correctedText, outputMode, typingSpeed });
       } catch (pasteError) {
         console.error('[Recording] Paste failed (transcription succeeded):', pasteError);
-        onStatusMessage({ type: 'warning', text: 'Transcribed but paste failed - check Accessibility permissions' }, 5000);
+        onStatusMessage({ type: 'warning', text: `Transcribed but paste failed: ${String(pasteError)}` }, 6000);
       }
     } catch (error) {
       const engineError = toEngineError(error);

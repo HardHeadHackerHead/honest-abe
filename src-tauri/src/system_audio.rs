@@ -36,6 +36,7 @@ pub struct DuckedSession {
 /// ducked process gets its volume back. After a crash (`stale`), pids may have
 /// been reused, so a session is only touched when it is still at the ducked
 /// level, i.e. nobody changed it since.
+#[cfg(any(target_os = "windows", target_os = "macos", test))]
 pub fn restore_volume_for(
     state: &DuckState,
     pid: u32,
@@ -48,7 +49,10 @@ pub fn restore_volume_for(
             return None;
         }
         let app_id = app_id?;
-        state.sessions.iter().find(|s| s.app_id.as_deref() == Some(app_id))
+        state
+            .sessions
+            .iter()
+            .find(|s| s.app_id.as_deref() == Some(app_id))
     })?;
     if stale && (current_volume - state.ducked_volume).abs() > 0.01 {
         return None;
@@ -65,7 +69,9 @@ pub fn init(data_dir: PathBuf) {
     let path = data_dir.join("ducked_volume.json");
     let _ = STATE_FILE.set(path.clone());
 
-    let Ok(json) = fs::read_to_string(&path) else { return };
+    let Ok(json) = fs::read_to_string(&path) else {
+        return;
+    };
     match serde_json::from_str::<DuckState>(&json) {
         Ok(stale) => match platform::restore(&stale, true) {
             Ok(()) => remove_state_file(),
@@ -76,7 +82,9 @@ pub fn init(data_dir: PathBuf) {
 }
 
 fn write_state_file(state: &DuckState) -> Result<(), String> {
-    let Some(path) = STATE_FILE.get() else { return Ok(()) };
+    let Some(path) = STATE_FILE.get() else {
+        return Ok(());
+    };
     if let Some(parent) = path.parent() {
         fs::create_dir_all(parent).map_err(|e| e.to_string())?;
     }
@@ -165,8 +173,9 @@ mod platform {
         // Commands can run on any thread; COM must be initialized on each
         let _ = CoInitializeEx(None, COINIT_APARTMENTTHREADED);
 
-        let enumerator: IMMDeviceEnumerator = CoCreateInstance(&MMDeviceEnumerator, None, CLSCTX_ALL)
-            .map_err(|e| format!("Failed to create device enumerator: {}", e))?;
+        let enumerator: IMMDeviceEnumerator =
+            CoCreateInstance(&MMDeviceEnumerator, None, CLSCTX_ALL)
+                .map_err(|e| format!("Failed to create device enumerator: {}", e))?;
         if let Some(id) = id {
             let wide: Vec<u16> = id.encode_utf16().chain(std::iter::once(0)).collect();
             if let Ok(device) = enumerator.GetDevice(PCWSTR(wide.as_ptr())) {
@@ -193,16 +202,31 @@ mod platform {
         let our_pid = process::id();
         let mut sessions = Vec::new();
         for i in 0..session_count {
-            let Ok(control) = session_enumerator.GetSession(i) else { continue };
+            let Ok(control) = session_enumerator.GetSession(i) else {
+                continue;
+            };
             let control: IAudioSessionControl = control;
-            let Ok(control2) = control.cast::<IAudioSessionControl2>() else { continue };
-            let Ok(pid) = control2.GetProcessId() else { continue };
+            let Ok(control2) = control.cast::<IAudioSessionControl2>() else {
+                continue;
+            };
+            let Ok(pid) = control2.GetProcessId() else {
+                continue;
+            };
             if pid == our_pid || pid == 0 {
                 continue;
             }
-            let Ok(volume) = control.cast::<ISimpleAudioVolume>() else { continue };
-            let app_id = control2.GetSessionIdentifier().ok().and_then(|p| take_string(p));
-            sessions.push(Session { pid, app_id, volume });
+            let Ok(volume) = control.cast::<ISimpleAudioVolume>() else {
+                continue;
+            };
+            let app_id = control2
+                .GetSessionIdentifier()
+                .ok()
+                .and_then(|p| take_string(p));
+            sessions.push(Session {
+                pid,
+                app_id,
+                volume,
+            });
         }
         Ok(sessions)
     }
@@ -223,7 +247,11 @@ mod platform {
                     })
                 })
                 .collect();
-            Ok(DuckState { device_id, ducked_volume: target_volume, sessions })
+            Ok(DuckState {
+                device_id,
+                ducked_volume: target_volume,
+                sessions,
+            })
         }
     }
 
@@ -233,7 +261,9 @@ mod platform {
             for session in other_sessions(&device)? {
                 if state.sessions.iter().any(|s| s.pid == session.pid) {
                     let null_guid: *const GUID = std::ptr::null();
-                    let _ = session.volume.SetMasterVolume(state.ducked_volume, null_guid);
+                    let _ = session
+                        .volume
+                        .SetMasterVolume(state.ducked_volume, null_guid);
                 }
             }
             Ok(())
@@ -244,10 +274,16 @@ mod platform {
         unsafe {
             let device = output_device(state.device_id.as_deref())?;
             for session in other_sessions(&device)? {
-                let Ok(current) = session.volume.GetMasterVolume() else { continue };
-                if let Some(original) =
-                    restore_volume_for(state, session.pid, session.app_id.as_deref(), current, stale)
-                {
+                let Ok(current) = session.volume.GetMasterVolume() else {
+                    continue;
+                };
+                if let Some(original) = restore_volume_for(
+                    state,
+                    session.pid,
+                    session.app_id.as_deref(),
+                    current,
+                    stale,
+                ) {
                     let null_guid: *const GUID = std::ptr::null();
                     let _ = session.volume.SetMasterVolume(original, null_guid);
                 }
@@ -279,7 +315,10 @@ mod platform {
     }
 
     fn set_output_volume(volume: f32) -> Result<(), String> {
-        let script = format!("set volume output volume {}", (volume * 100.0).round() as i32);
+        let script = format!(
+            "set volume output volume {}",
+            (volume * 100.0).round() as i32
+        );
         let output = Command::new("osascript")
             .args(["-e", &script])
             .output()
@@ -295,11 +334,19 @@ mod platform {
     pub fn snapshot(target_volume: f32) -> Result<DuckState, String> {
         let current = output_volume()?;
         let sessions = if current > target_volume {
-            vec![DuckedSession { pid: 0, app_id: None, original_volume: current }]
+            vec![DuckedSession {
+                pid: 0,
+                app_id: None,
+                original_volume: current,
+            }]
         } else {
             Vec::new()
         };
-        Ok(DuckState { device_id: None, ducked_volume: target_volume, sessions })
+        Ok(DuckState {
+            device_id: None,
+            ducked_volume: target_volume,
+            sessions,
+        })
     }
 
     pub fn apply(state: &DuckState) -> Result<(), String> {
@@ -320,7 +367,11 @@ mod platform {
     use super::DuckState;
 
     pub fn snapshot(target_volume: f32) -> Result<DuckState, String> {
-        Ok(DuckState { device_id: None, ducked_volume: target_volume, sessions: Vec::new() })
+        Ok(DuckState {
+            device_id: None,
+            ducked_volume: target_volume,
+            sessions: Vec::new(),
+        })
     }
 
     pub fn apply(_state: &DuckState) -> Result<(), String> {
@@ -341,8 +392,16 @@ mod tests {
             device_id: Some("{0.0.0.00000000}.{abc}".to_string()),
             ducked_volume: 0.2,
             sessions: vec![
-                DuckedSession { pid: 100, app_id: Some("spotify".to_string()), original_volume: 0.8 },
-                DuckedSession { pid: 200, app_id: None, original_volume: 1.0 },
+                DuckedSession {
+                    pid: 100,
+                    app_id: Some("spotify".to_string()),
+                    original_volume: 0.8,
+                },
+                DuckedSession {
+                    pid: 200,
+                    app_id: None,
+                    original_volume: 1.0,
+                },
             ],
         }
     }
@@ -360,16 +419,25 @@ mod tests {
         let s = state();
         assert_eq!(restore_volume_for(&s, 100, None, 0.5, false), Some(0.8));
         assert_eq!(restore_volume_for(&s, 200, None, 0.2, false), Some(1.0));
-        assert_eq!(restore_volume_for(&s, 300, Some("spotify"), 0.2, false), None);
+        assert_eq!(
+            restore_volume_for(&s, 300, Some("spotify"), 0.2, false),
+            None
+        );
     }
 
     #[test]
     fn stale_restore_only_touches_untouched_sessions() {
         let s = state();
         // Same app restarted under a new pid, still at the ducked level
-        assert_eq!(restore_volume_for(&s, 300, Some("spotify"), 0.2, true), Some(0.8));
+        assert_eq!(
+            restore_volume_for(&s, 300, Some("spotify"), 0.2, true),
+            Some(0.8)
+        );
         // The user changed it since
-        assert_eq!(restore_volume_for(&s, 100, Some("spotify"), 0.6, true), None);
+        assert_eq!(
+            restore_volume_for(&s, 100, Some("spotify"), 0.6, true),
+            None
+        );
         // Unknown app
         assert_eq!(restore_volume_for(&s, 400, Some("other"), 0.2, true), None);
         assert_eq!(restore_volume_for(&s, 400, None, 0.2, true), None);

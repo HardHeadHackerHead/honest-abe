@@ -6,7 +6,6 @@
   "permissions": [
     "core:event:allow-listen",
     "core:event:allow-unlisten",
-    "core:window:allow-set-ignore-cursor-events",
     "allow-get-audio-level",
     "allow-get-engine-status"
   ]

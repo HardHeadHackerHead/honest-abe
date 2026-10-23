@@ -3,6 +3,18 @@
 
 use std::collections::HashSet;
 
+/// Commands for compositor-owned shortcuts. Only accept one explicit action.
+pub fn control_event(argv: &[String]) -> Option<&'static str> {
+    if argv.len() != 2 {
+        return None;
+    }
+    match argv[1].as_str() {
+        "--toggle-recording" => Some("toggle-recording"),
+        "--paste-last" => Some("paste-last-pressed"),
+        _ => None,
+    }
+}
+
 /// Parse "Control+Alt+Space" into its key names.
 pub fn parse_hotkey_string(hotkey: &str) -> HashSet<String> {
     hotkey
@@ -39,6 +51,7 @@ pub fn hotkey_still_held(pressed: &HashSet<String>, hotkey: &HashSet<String>) ->
 /// Windows reports the side buttons as XBUTTON1/XBUTTON2, which rdev passes on as
 /// `Button::Unknown(1)` and `Button::Unknown(2)`. The browser (and so the hotkey
 /// recorder) calls them buttons 3 and 4, saved as "Mouse4" and "Mouse5" (R1).
+#[cfg(any(target_os = "windows", test))]
 pub fn xbutton_name(code: u8) -> String {
     match code {
         1 => "Mouse4".to_string(),
@@ -49,6 +62,7 @@ pub fn xbutton_name(code: u8) -> String {
 
 /// Vertical wheel direction. Horizontal scrolling and zero-delta touchpad events
 /// report no vertical movement and must not register as "WheelDown" (R8).
+#[cfg(any(target_os = "windows", target_os = "macos", test))]
 pub fn wheel_name(delta_y: i64) -> Option<&'static str> {
     match delta_y {
         d if d > 0 => Some("WheelUp"),
@@ -61,14 +75,39 @@ pub fn wheel_name(delta_y: i64) -> Option<&'static str> {
 mod tests {
     use super::*;
 
+    #[test]
+    fn desktop_actions_are_explicit_and_unambiguous() {
+        let args = |values: &[&str]| values.iter().map(|s| s.to_string()).collect::<Vec<_>>();
+        assert_eq!(
+            control_event(&args(&["abe", "--toggle-recording"])),
+            Some("toggle-recording")
+        );
+        assert_eq!(
+            control_event(&args(&["abe", "--paste-last"])),
+            Some("paste-last-pressed")
+        );
+        assert_eq!(control_event(&args(&["abe"])), None);
+        assert_eq!(control_event(&args(&["abe", "--unknown"])), None);
+        assert_eq!(
+            control_event(&args(&["abe", "--paste-last", "--toggle-recording"])),
+            None
+        );
+    }
+
     fn keys(list: &[&str]) -> HashSet<String> {
         list.iter().map(|s| s.to_string()).collect()
     }
 
     #[test]
     fn parses_hotkey_strings() {
-        assert_eq!(parse_hotkey_string("Control+Alt+Space"), keys(&["Control", "Alt", "Space"]));
-        assert_eq!(parse_hotkey_string(" Control + V "), keys(&["Control", "V"]));
+        assert_eq!(
+            parse_hotkey_string("Control+Alt+Space"),
+            keys(&["Control", "Alt", "Space"])
+        );
+        assert_eq!(
+            parse_hotkey_string(" Control + V "),
+            keys(&["Control", "V"])
+        );
         assert!(parse_hotkey_string("").is_empty());
         assert!(parse_hotkey_string("+").is_empty());
     }
@@ -77,7 +116,10 @@ mod tests {
     fn matches_exactly() {
         let hotkey = keys(&["Control", "Shift", "V"]);
         assert!(hotkey_matches(&keys(&["Control", "Shift", "V"]), &hotkey));
-        assert!(!hotkey_matches(&keys(&["Control", "Shift", "Alt", "V"]), &hotkey));
+        assert!(!hotkey_matches(
+            &keys(&["Control", "Shift", "Alt", "V"]),
+            &hotkey
+        ));
         assert!(!hotkey_matches(&keys(&["Control", "V"]), &hotkey));
         assert!(!hotkey_matches(&keys(&[]), &hotkey));
         assert!(!hotkey_matches(&keys(&["Control"]), &keys(&[])));
@@ -86,8 +128,14 @@ mod tests {
     #[test]
     fn ignores_unrelated_pointer_input() {
         let hotkey = keys(&["Control", "Alt", "Space"]);
-        assert!(hotkey_matches(&keys(&["Control", "Alt", "Space", "MouseLeft"]), &hotkey));
-        assert!(hotkey_matches(&keys(&["Control", "Alt", "Space", "WheelDown"]), &hotkey));
+        assert!(hotkey_matches(
+            &keys(&["Control", "Alt", "Space", "MouseLeft"]),
+            &hotkey
+        ));
+        assert!(hotkey_matches(
+            &keys(&["Control", "Alt", "Space", "WheelDown"]),
+            &hotkey
+        ));
 
         let mouse = keys(&["Mouse4"]);
         assert!(hotkey_matches(&keys(&["Mouse4"]), &mouse));
@@ -99,7 +147,10 @@ mod tests {
     #[test]
     fn held_tolerates_extra_keys() {
         let hotkey = keys(&["Control", "Alt", "Space"]);
-        assert!(hotkey_still_held(&keys(&["Control", "Alt", "Space", "Shift"]), &hotkey));
+        assert!(hotkey_still_held(
+            &keys(&["Control", "Alt", "Space", "Shift"]),
+            &hotkey
+        ));
         assert!(!hotkey_still_held(&keys(&["Control", "Space"]), &hotkey));
         assert!(!hotkey_still_held(&keys(&["Control"]), &keys(&[])));
     }

@@ -630,9 +630,12 @@ export default function SettingsPanel({ onOpenOnboarding, focusEngine = false }:
           >
             <option value="">Default Microphone</option>
             {audioDevices.map((device) => (
-              <option key={device} value={device}>{device}</option>
+              <option key={device} value={device}>{device === 'pipewire' ? 'PipeWire (system microphone)' : device}</option>
             ))}
           </select>
+          <p className="text-[10px] text-on-surface-variant mt-1">
+            Default Microphone follows your desktop's sound settings.
+          </p>
         </div>
       </div>
 

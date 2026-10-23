@@ -57,7 +57,7 @@ Prices are as of October 2026; see the [costs page](https://getabe.app/docs/cost
 | **Windows** 10 / 11 (x64) | [`Abe-windows-x64-setup.exe`](https://github.com/HardHeadHackerHead/honest-abe/releases/latest/download/Abe-windows-x64-setup.exe) |
 | **macOS** 10.15+ (Apple silicon) | [`Abe-macos-arm64.dmg`](https://github.com/HardHeadHackerHead/honest-abe/releases/latest/download/Abe-macos-arm64.dmg) |
 | **macOS** 10.15+ (Intel) | [`Abe-macos-x64.dmg`](https://github.com/HardHeadHackerHead/honest-abe/releases/latest/download/Abe-macos-x64.dmg) |
-| **Linux** | Coming soon. You can [build from source](#building-from-source) today. |
+| **Linux** | [Build and run from source](docs/linux.md). Includes X11 support and compositor shortcuts for Wayland. |
 
 On macOS, allow **Microphone** and **Accessibility** access. Accessibility is what lets Abe paste into other apps.
 
@@ -112,6 +112,9 @@ npm run tauri build    # installers in src-tauri/target/release/bundle/
 | Windows | [Visual Studio 2022 Build Tools](https://visualstudio.microsoft.com/visual-cpp-build-tools/) with *Desktop development with C++*, [CMake](https://cmake.org/download/), [LLVM](https://github.com/llvm/llvm-project/releases) (for libclang). Windows 10/11 already include WebView2. |
 | macOS | `xcode-select --install`, then `brew install cmake` |
 | Linux (Debian/Ubuntu) | `sudo apt install libwebkit2gtk-4.1-dev libayatana-appindicator3-dev librsvg2-dev patchelf libssl-dev libasound2-dev libxdo-dev libx11-dev libxi-dev libxtst-dev libdbus-1-dev pkg-config cmake clang libclang-dev` |
+| Linux (Arch) | `sudo pacman -S --needed base-devel webkit2gtk-4.1 libappindicator-gtk3 librsvg patchelf alsa-lib libx11 libxi libxtst dbus pkgconf cmake clang` |
+
+For Linux session support, desktop shortcuts and troubleshooting, see [the Linux guide](docs/linux.md). Wayland uses compositor shortcuts rather than the built-in X11 hotkey listener.
 
 If libclang isn't found, set `LIBCLANG_PATH` (for example `C:\Program Files\LLVM\bin`).
 
