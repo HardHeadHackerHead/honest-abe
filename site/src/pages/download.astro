@@ -9,7 +9,7 @@ const release = await getLatestRelease();
 
 const groups: { os: OS; name: string; icon: 'windows' | 'laptop' | 'terminal'; blurb: string }[] = [
   { os: 'windows', name: 'Windows', icon: 'windows', blurb: 'Windows 10 or 11, 64-bit.' },
-  { os: 'macos', name: 'macOS', icon: 'laptop', blurb: 'Coming soon. Signed, notarized Mac builds are next.' },
+  { os: 'macos', name: 'macOS', icon: 'laptop', blurb: 'Signed and notarized, for Apple Silicon and Intel Macs.' },
   { os: 'linux', name: 'Linux', icon: 'terminal', blurb: 'Coming soon. Not supported yet.' },
 ];
 ---
@@ -132,7 +132,7 @@ const groups: { os: OS; name: string; icon: 'windows' | 'laptop' | 'terminal'; b
       <article class="card p-7" data-os-note="macos">
         <h3 class="flex items-center gap-2 text-lg font-semibold"><Icon name="laptop" size={18} /> macOS Gatekeeper and permissions</h3>
         <div class="prose-abe text-[0.95rem]">
-          <p><strong>Coming soon.</strong> When the Mac build ships: open the .dmg and drag Abe to Applications. On first launch, allow:</p>
+          <p>Open the .dmg and drag Abe to Applications. On first launch, allow:</p>
           <ul>
             <li><strong>Microphone</strong>, to hear you.</li>
             <li><strong>Accessibility</strong>, to paste or type into other apps.</li>

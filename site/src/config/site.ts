@@ -7,7 +7,7 @@ export const SITE_URL = 'https://getabe.app';
 export const SITE_NAME = 'Abe';
 export const SITE_TAGLINE = 'Free, open-source voice-to-text for your desktop';
 export const SITE_DESCRIPTION =
-  'Abe is free, open-source dictation for Windows (macOS and Linux coming soon). Hold a hotkey, talk, and your words appear in any app. Run Whisper locally or bring your own API key. No accounts, no servers.';
+  'Abe is free, open-source dictation for Windows and macOS (Linux coming soon). Hold a hotkey, talk, and your words appear in any app. Run Whisper locally or bring your own API key. No accounts, no servers.';
 
 export const CONTACT_EMAIL = 'quad@quadslab.io';
 export const ORG_NAME = 'Quads Lab';
@@ -51,8 +51,8 @@ export interface DownloadAsset {
  */
 export const DOWNLOAD_ASSETS: DownloadAsset[] = [
   { id: 'win-x64', os: 'windows', label: 'Windows', variant: '64-bit (x64)', file: 'Abe-windows-x64-setup.exe', format: 'Installer (.exe)', primary: true },
-  { id: 'mac-arm64', os: 'macos', label: 'macOS', variant: 'Apple Silicon (M1 and later)', file: 'Abe-macos-arm64.dmg', format: 'Disk image (.dmg)', primary: true, comingSoon: true },
-  { id: 'mac-x64', os: 'macos', label: 'macOS', variant: 'Intel', file: 'Abe-macos-x64.dmg', format: 'Disk image (.dmg)', comingSoon: true },
+  { id: 'mac-arm64', os: 'macos', label: 'macOS', variant: 'Apple Silicon (M1 and later)', file: 'Abe-macos-arm64.dmg', format: 'Disk image (.dmg)', primary: true },
+  { id: 'mac-x64', os: 'macos', label: 'macOS', variant: 'Intel', file: 'Abe-macos-x64.dmg', format: 'Disk image (.dmg)' },
   { id: 'linux-appimage', os: 'linux', label: 'Linux', variant: 'x86_64 AppImage', file: 'Abe-linux-x86_64.AppImage', format: 'AppImage', primary: true, comingSoon: true },
   { id: 'linux-deb', os: 'linux', label: 'Linux', variant: 'Debian / Ubuntu (amd64)', file: 'Abe-linux-amd64.deb', format: 'Debian package (.deb)', comingSoon: true },
 ];

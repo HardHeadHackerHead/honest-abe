@@ -27,7 +27,7 @@ export const FAQ: FaqItem[] = [
   },
   {
     q: 'Which platforms are supported?',
-    a: 'Windows 10 and 11 (x64) today. macOS (Apple Silicon and Intel) and Linux are coming soon.',
+    a: 'Windows 10 and 11 (x64), and macOS 10.15 or later (Apple Silicon and Intel). Linux is coming soon.',
   },
   {
     q: 'Where is my API key stored?',

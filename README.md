@@ -9,7 +9,7 @@ Hold a key, talk, and your words appear wherever you're typing.
 
 [![License: AGPL-3.0-or-later](https://img.shields.io/badge/license-AGPL--3.0--or--later-3b82f6?style=flat-square)](LICENSE)
 [![Latest release](https://img.shields.io/github/v/release/HardHeadHackerHead/honest-abe?style=flat-square&color=4edea3)](https://github.com/HardHeadHackerHead/honest-abe/releases/latest)
-![Platforms](https://img.shields.io/badge/platform-Windows-508eff?style=flat-square)
+![Platforms](https://img.shields.io/badge/platform-Windows%20%7C%20macOS-508eff?style=flat-square)
 ![No telemetry](https://img.shields.io/badge/telemetry-none-4edea3?style=flat-square)
 
 [**Download**](#download) · [**Website**](https://getabe.app) · [**Docs**](https://getabe.app/docs) · [**Get an API key**](https://getabe.app/docs/api-keys/groq) · [**Support Abe**](#support-abe)
@@ -55,10 +55,11 @@ Prices are as of October 2026; see the [costs page](https://getabe.app/docs/cost
 | Platform | Installer |
 |---|---|
 | **Windows** 10 / 11 (x64) | [`Abe-windows-x64-setup.exe`](https://github.com/HardHeadHackerHead/honest-abe/releases/latest/download/Abe-windows-x64-setup.exe) |
-| **macOS** (Apple silicon and Intel) | Coming soon. You can [build from source](#building-from-source) today. |
+| **macOS** 10.15+ (Apple silicon) | [`Abe-macos-arm64.dmg`](https://github.com/HardHeadHackerHead/honest-abe/releases/latest/download/Abe-macos-arm64.dmg) |
+| **macOS** 10.15+ (Intel) | [`Abe-macos-x64.dmg`](https://github.com/HardHeadHackerHead/honest-abe/releases/latest/download/Abe-macos-x64.dmg) |
 | **Linux** | Coming soon. You can [build from source](#building-from-source) today. |
 
-On macOS (once available, or when built from source; version 10.15+), allow **Microphone** and **Accessibility** access. Accessibility is what lets Abe paste into other apps.
+On macOS, allow **Microphone** and **Accessibility** access. Accessibility is what lets Abe paste into other apps.
 
 ## Quick start
 
