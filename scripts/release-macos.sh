@@ -296,9 +296,12 @@ do_dmg() {
         mkdir -p "$(dirname "$DMG_PATH")"
         rm -f "$DMG_PATH"
 
+        # The bundled icon is named after the product (e.g. Abe.icns), not icon.icns
+        local VOLICON=$(ls "$APP_PATH/Contents/Resources/"*.icns 2>/dev/null | head -1)
+
         create-dmg \
           --volname "Abe" \
-          --volicon "$APP_PATH/Contents/Resources/icon.icns" \
+          ${VOLICON:+--volicon "$VOLICON"} \
           --background "$PROJECT_DIR/src-tauri/dmg-resources/background.png" \
           --window-pos 200 120 \
           --window-size 500 350 \
@@ -309,6 +312,12 @@ do_dmg() {
           --text-size 11 \
           "$DMG_PATH" \
           "$APP_PATH" || true
+
+        if [ ! -f "$DMG_PATH" ]; then
+            echo -e "${RED}DMG was not created at $DMG_PATH${NC}"
+            read -p "Press Enter to continue..."
+            return
+        fi
 
         # Re-sign the polished DMG with Developer ID (create-dmg produces unsigned)
         if load_signing_identity; then
