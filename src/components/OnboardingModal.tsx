@@ -1,6 +1,6 @@
 import { useState, useEffect, useCallback, useRef } from 'react';
 import { invoke } from '@tauri-apps/api/core';
-import { listen } from '@tauri-apps/api/event';
+import { listen, emit } from '@tauri-apps/api/event';
 import { getCurrentWebviewWindow } from '@tauri-apps/api/webviewWindow';
 import { LogicalSize } from '@tauri-apps/api/dpi';
 import { Mic, Keyboard, Cpu, CheckCircle, ChevronRight, X, Shield, Settings, AlertTriangle, Loader2, Wand2, Clipboard, BookA } from 'lucide-react';
@@ -18,6 +18,7 @@ import { acquireMic, releaseMic } from '../services/recordingMachine';
 const appWindow = getCurrentWebviewWindow();
 
 interface OnboardingModalProps {
+  needsDesktopShortcuts?: boolean;
   isOpen: boolean;
   onClose: () => void;
   onComplete: () => void;
@@ -38,6 +39,7 @@ const MIN_ONBOARDING_HEIGHT = 640;
 const MIN_ONBOARDING_WIDTH = 480;
 
 export default function OnboardingModal({
+  needsDesktopShortcuts = false,
   isOpen,
   onClose,
   onComplete,
@@ -374,9 +376,13 @@ export default function OnboardingModal({
               >
                 <option value="">System Default</option>
                 {audioDevices.map((device) => (
-                  <option key={device} value={device}>{device}</option>
+                  <option key={device} value={device}>{device === 'pipewire' ? 'PipeWire (system microphone)' : device}</option>
                 ))}
               </select>
+
+              <p className="text-[11px] text-on-surface-variant">
+                System Default follows the microphone selected in your desktop's sound settings.
+              </p>
 
               {/* Audio level meter */}
               <div className="space-y-2">
@@ -467,14 +473,15 @@ export default function OnboardingModal({
               {/* Title area */}
               <div className="text-center">
                 <h2 className="text-lg font-bold text-on-surface">
-                  {practiceState === 'waiting' && !hasTriedRecording ? 'Try your hotkey' :
+                  {practiceState === 'waiting' && !hasTriedRecording ? (needsDesktopShortcuts ? 'Try dictation' : 'Try your hotkey') :
                    practiceState === 'waiting' && hasTriedRecording ? 'Try again or continue' :
                    practiceState === 'recording' ? 'Listening...' :
                    practiceState === 'processing' ? 'Transcribing...' :
                    'It works!'}
                 </h2>
                 <p className="text-xs text-on-surface-variant mt-1">
-                  {practiceState === 'waiting' && !hasTriedRecording ? 'Press your hotkey to start recording, then speak' :
+                  {needsDesktopShortcuts ? 'Click to start recording, speak, then click again to stop.' :
+                   practiceState === 'waiting' && !hasTriedRecording ? 'Press your hotkey to start recording, then speak' :
                    practiceState === 'waiting' && hasTriedRecording ? 'Press the hotkey again to try once more' :
                    practiceState === 'recording' ? (pushToTalk ? 'Release the hotkey when you\'re done speaking' : 'Press the hotkey again to stop') :
                    practiceState === 'processing' ? 'Converting your speech to text...' :
@@ -482,8 +489,23 @@ export default function OnboardingModal({
                 </p>
               </div>
 
+              {needsDesktopShortcuts && (
+                <div className="space-y-2">
+                  <button
+                    onClick={() => { void emit('toggle-recording'); }}
+                    disabled={!engineReady || isProcessing}
+                    className="w-full py-3 rounded-xl gradient-primary text-on-primary font-medium text-sm disabled:opacity-50"
+                  >
+                    {isRecording ? 'Stop recording' : 'Start recording'}
+                  </button>
+                  <p className="text-[11px] text-on-surface-variant text-center">
+                    Wayland shortcuts are configured in your desktop. You can also use Abe's tray menu.
+                  </p>
+                </div>
+              )}
+
               {/* Hotkey display — prominent, with animated prompt */}
-              <div className={`relative rounded-2xl p-5 text-center transition-all duration-300 ${
+              <div className={`${needsDesktopShortcuts ? 'hidden' : ''} relative rounded-2xl p-5 text-center transition-all duration-300 ${
                 isRecordingHotkey
                   ? 'bg-tertiary/10 border-2 border-tertiary/30'
                   : practiceState === 'recording'
@@ -578,7 +600,7 @@ export default function OnboardingModal({
                     </p>
                     <p className="text-[10px] text-on-surface-variant mt-0.5">
                       {isDownloading
-                        ? 'Your hotkey will work as soon as it is ready.'
+                        ? 'Recording will be available as soon as it is ready.'
                         : engineDetail ?? 'Go back to choose local or cloud.'}
                     </p>
                     {!isDownloading && (
@@ -621,7 +643,7 @@ export default function OnboardingModal({
               {/* Options — collapsed by default */}
               <button
                 onClick={() => setShowHotkeyOptions(!showHotkeyOptions)}
-                className="flex items-center justify-center gap-1.5 text-[10px] text-on-surface-variant hover:text-on-surface transition-colors"
+                className={`${needsDesktopShortcuts ? 'hidden' : ''} flex items-center justify-center gap-1.5 text-[10px] text-on-surface-variant hover:text-on-surface transition-colors`}
               >
                 <Settings className="w-3 h-3" />
                 <span>{showHotkeyOptions ? 'Hide options' : 'Change hotkey or mode'}</span>
@@ -678,7 +700,7 @@ export default function OnboardingModal({
               </div>
               {playgroundSuccess && (
                 <p className="text-[10px] text-on-surface-variant text-center">
-                  Press your hotkey again to try another transcription, or continue
+                  {needsDesktopShortcuts ? 'Record again to try another transcription, or continue' : 'Press your hotkey again to try another transcription, or continue'}
                 </p>
               )}
             </div>
@@ -703,11 +725,11 @@ export default function OnboardingModal({
                 </div>
                 <div className="flex items-center justify-between bg-surface-container-high/50 rounded-xl p-3">
                   <span className="text-xs text-on-surface-variant">Hotkey</span>
-                  <span className="text-xs font-mono font-medium text-primary">{formatHotkeyDisplay(hotkey)}</span>
+                  <span className="text-xs font-mono font-medium text-primary">{needsDesktopShortcuts ? 'Set in your desktop' : formatHotkeyDisplay(hotkey)}</span>
                 </div>
                 <div className="flex items-center justify-between bg-surface-container-high/50 rounded-xl p-3">
                   <span className="text-xs text-on-surface-variant">Mode</span>
-                  <span className="text-xs font-medium text-on-surface">{pushToTalk ? 'Push to Talk' : 'Toggle'}</span>
+                  <span className="text-xs font-medium text-on-surface">{!needsDesktopShortcuts && pushToTalk ? 'Push to Talk' : 'Toggle'}</span>
                 </div>
                 <div className="flex items-center justify-between bg-surface-container-high/50 rounded-xl p-3">
                   <span className="text-xs text-on-surface-variant">Transcription</span>

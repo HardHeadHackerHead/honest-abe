@@ -5,9 +5,14 @@
 
 mod audio;
 mod commands;
+mod desktop;
 mod engine;
 mod hotkeys;
+#[cfg(target_os = "linux")]
+mod linux_input;
 mod system_audio;
+#[cfg(target_os = "linux")]
+mod wayland_shortcuts;
 
 use device_query::{DeviceQuery, DeviceState, Keycode};
 use hotkeys::{hotkey_matches, hotkey_still_held, parse_hotkey_string};
@@ -25,9 +30,11 @@ use tauri::{AppHandle, Emitter, Manager, WebviewWindowBuilder};
 
 // Platform-specific scroll wheel imports
 #[cfg(target_os = "macos")]
-use core_foundation::runloop::{CFRunLoop, kCFRunLoopCommonModes};
+use core_foundation::runloop::{kCFRunLoopCommonModes, CFRunLoop};
 #[cfg(target_os = "macos")]
-use core_graphics::event::{CGEventTap, CGEventTapLocation, CGEventTapPlacement, CGEventTapOptions, CGEventType};
+use core_graphics::event::{
+    CGEventTap, CGEventTapLocation, CGEventTapOptions, CGEventTapPlacement, CGEventType,
+};
 
 #[cfg(target_os = "windows")]
 use rdev::{listen, Event, EventType};
@@ -141,12 +148,17 @@ lazy_static::lazy_static! {
 #[cfg(target_os = "macos")]
 fn any_hotkey_uses_mouse() -> bool {
     let check_mouse = |keys: &HashSet<String>| {
-        keys.iter().any(|k| k.starts_with("Wheel") || k.starts_with("Mouse"))
+        keys.iter()
+            .any(|k| k.starts_with("Wheel") || k.starts_with("Mouse"))
     };
 
-    [&*HOTKEY_KEYS, &*PASTE_LAST_HOTKEY_KEYS, &*TRANSFORM_HOTKEY_KEYS]
-        .iter()
-        .any(|lock| lock.read().map(|keys| check_mouse(&keys)).unwrap_or(false))
+    [
+        &*HOTKEY_KEYS,
+        &*PASTE_LAST_HOTKEY_KEYS,
+        &*TRANSFORM_HOTKEY_KEYS,
+    ]
+    .iter()
+    .any(|lock| lock.read().map(|keys| check_mouse(&keys)).unwrap_or(false))
 }
 
 // Start rdev listener if needed (platform-specific) - for wheel and mouse button detection
@@ -186,10 +198,12 @@ fn start_scroll_listener() {
                 }
                 // Trackpads and other precision devices scroll continuously; only
                 // discrete wheel clicks count as wheel hotkeys (R8)
-                if event.get_integer_value_field(EventField::SCROLL_WHEEL_EVENT_IS_CONTINUOUS) != 0 {
+                if event.get_integer_value_field(EventField::SCROLL_WHEEL_EVENT_IS_CONTINUOUS) != 0
+                {
                     return None;
                 }
-                let delta_y = event.get_integer_value_field(EventField::SCROLL_WHEEL_EVENT_DELTA_AXIS_1);
+                let delta_y =
+                    event.get_integer_value_field(EventField::SCROLL_WHEEL_EVENT_DELTA_AXIS_1);
                 if let Some(wheel_event) = hotkeys::wheel_name(delta_y) {
                     if let Ok(mut current) = CURRENT_WHEEL_EVENT.write() {
                         *current = Some(wheel_event.to_string());
@@ -203,7 +217,10 @@ fn start_scroll_listener() {
         match tap {
             Ok(tap) => {
                 // Get the run loop source from the tap
-                let loop_source = tap.mach_port.create_runloop_source(0).expect("Failed to create run loop source");
+                let loop_source = tap
+                    .mach_port
+                    .create_runloop_source(0)
+                    .expect("Failed to create run loop source");
 
                 // Get the current run loop and add the source
                 let run_loop = CFRunLoop::get_current();
@@ -245,7 +262,10 @@ fn start_scroll_listener() {
         let callback = |event: Event| {
             match event.event_type {
                 // Horizontal scrolling has no vertical delta and is ignored (R8)
-                EventType::Wheel { delta_x: _, delta_y } => {
+                EventType::Wheel {
+                    delta_x: _,
+                    delta_y,
+                } => {
                     if let Some(wheel_event) = hotkeys::wheel_name(delta_y) {
                         if let Ok(mut current) = CURRENT_WHEEL_EVENT.write() {
                             *current = Some(wheel_event.to_string());
@@ -273,7 +293,6 @@ fn start_scroll_listener() {
         SCROLL_LISTENER_RUNNING.store(false, Ordering::SeqCst);
     });
 }
-
 
 // Convert device_query Keycode to our string format
 fn keycode_to_string(key: &Keycode) -> String {
@@ -389,7 +408,7 @@ fn mouse_button_to_string(button: usize) -> String {
         match button {
             0 => "MouseLeft".to_string(),
             1 => "MouseRight".to_string(),
-            3 => "MouseMiddle".to_string(),  // macOS reports middle as index 3
+            3 => "MouseMiddle".to_string(), // macOS reports middle as index 3
             2 => "Mouse4".to_string(),
             4 => "Mouse5".to_string(),
             n => format!("Mouse{}", n + 1),
@@ -399,12 +418,13 @@ fn mouse_button_to_string(button: usize) -> String {
     #[cfg(not(target_os = "macos"))]
     {
         match button {
-            0 => "MouseLeft".to_string(),
-            1 => "MouseRight".to_string(),
+            // device_query's Linux vector is one-based and uses X11 ordering.
+            1 => "MouseLeft".to_string(),
             2 => "MouseMiddle".to_string(),
-            3 => "Mouse4".to_string(),
-            4 => "Mouse5".to_string(),
-            n => format!("Mouse{}", n + 1),
+            3 => "MouseRight".to_string(),
+            // X11 buttons 4/5 are wheel ticks, not side buttons. They cannot
+            // provide a reliable held state through XQueryPointer.
+            _ => String::new(),
         }
     }
 }
@@ -448,12 +468,24 @@ fn release_active_hotkeys(app: &AppHandle) {
 
 #[tauri::command]
 async fn set_hotkey(app_handle: AppHandle, hotkey: String) -> Result<(), String> {
-    replace_hotkey(&app_handle, &HOTKEY_KEYS, &HOTKEY_ACTIVE, Some("hotkey-released"), &hotkey)
+    replace_hotkey(
+        &app_handle,
+        &HOTKEY_KEYS,
+        &HOTKEY_ACTIVE,
+        Some("hotkey-released"),
+        &hotkey,
+    )
 }
 
 #[tauri::command]
 async fn set_paste_last_hotkey(app_handle: AppHandle, hotkey: String) -> Result<(), String> {
-    replace_hotkey(&app_handle, &PASTE_LAST_HOTKEY_KEYS, &PASTE_LAST_HOTKEY_ACTIVE, None, &hotkey)
+    replace_hotkey(
+        &app_handle,
+        &PASTE_LAST_HOTKEY_KEYS,
+        &PASTE_LAST_HOTKEY_ACTIVE,
+        None,
+        &hotkey,
+    )
 }
 
 #[tauri::command]
@@ -513,6 +545,12 @@ fn move_overlays(app_handle: &AppHandle, x: f64, y: f64) -> Result<(), String> {
 /// monitor) the first time, or when `reset` is true.
 #[tauri::command]
 async fn show_overlay(app_handle: AppHandle, reset: Option<bool>) -> Result<(), String> {
+    // Ordinary Wayland toplevels can be focused on every hide/show cycle,
+    // including the interaction pill shown again after transcription. Until
+    // this is a non-activating layer-shell surface, keep it out of the way.
+    if desktop::is_wayland() {
+        return Ok(());
+    }
     let Some(window) = app_handle.get_webview_window("overlay") else {
         return Ok(());
     };
@@ -529,7 +567,13 @@ async fn show_overlay(app_handle: AppHandle, reset: Option<bool>) -> Result<(), 
     if let Some(interaction_window) = app_handle.get_webview_window("overlay-interaction") {
         let _ = interaction_window.show();
     }
-    window.show().map_err(|e| e.to_string())
+    window.show().map_err(|e| e.to_string())?;
+    // GTK has no native surface until the hidden overlay is first shown.
+    // Setting the input region from the webview's mount effect panics in Tao
+    // on Linux; queue it after show, once that surface has been realized.
+    window
+        .set_ignore_cursor_events(true)
+        .map_err(|e| e.to_string())
 }
 
 #[tauri::command]
@@ -628,11 +672,25 @@ fn is_updater_enabled() -> bool {
 }
 
 #[tauri::command]
+fn needs_desktop_shortcuts() -> bool {
+    #[cfg(target_os = "linux")]
+    {
+        desktop::is_wayland() && linux_input::pressed_keys().is_none()
+    }
+    #[cfg(not(target_os = "linux"))]
+    {
+        false
+    }
+}
+
+#[tauri::command]
 async fn reduce_other_apps_volume(volume_percent: f32) -> Result<(), String> {
     let target_volume = (volume_percent / 100.0).clamp(0.0, 1.0);
-    tauri::async_runtime::spawn_blocking(move || system_audio::reduce_other_apps_volume(target_volume))
-        .await
-        .map_err(|e| e.to_string())?
+    tauri::async_runtime::spawn_blocking(move || {
+        system_audio::reduce_other_apps_volume(target_volume)
+    })
+    .await
+    .map_err(|e| e.to_string())?
 }
 
 #[tauri::command]
@@ -644,9 +702,10 @@ async fn restore_other_apps_volume() -> Result<(), String> {
 
 fn build_tray(app: &tauri::App) -> tauri::Result<()> {
     let show = MenuItem::with_id(app, "show", "Show", true, None::<&str>)?;
+    let dictate = MenuItem::with_id(app, "dictate", "Start / stop dictation", true, None::<&str>)?;
     let separator = PredefinedMenuItem::separator(app)?;
     let quit = MenuItem::with_id(app, "quit", "Quit", true, None::<&str>)?;
-    let menu = Menu::with_items(app, &[&show, &separator, &quit])?;
+    let menu = Menu::with_items(app, &[&show, &dictate, &separator, &quit])?;
     #[cfg(debug_assertions)]
     menu.insert(
         &MenuItem::with_id(app, "debug", "Debug Console", true, None::<&str>)?,
@@ -660,6 +719,9 @@ fn build_tray(app: &tauri::App) -> tauri::Result<()> {
         .icon_as_template(true)
         .on_menu_event(|app, event| match event.id().as_ref() {
             "show" => show_main_window(app),
+            "dictate" if !HOTKEYS_DISABLED.load(Ordering::SeqCst) => {
+                let _ = app.emit("toggle-recording", ());
+            }
             // Volumes are restored in the RunEvent::Exit handler
             "quit" => app.exit(0),
             #[cfg(debug_assertions)]
@@ -685,29 +747,46 @@ fn build_tray(app: &tauri::App) -> tauri::Result<()> {
 
 /// Polls the keyboard (and mouse) and turns hotkey presses into events
 fn run_hotkey_loop(event_handle: AppHandle) {
+    if desktop::is_wayland() {
+        #[cfg(target_os = "linux")]
+        if linux_input::pressed_keys().is_none() {
+            println!("[Hotkeys] No keyboard-device access: use compositor shortcuts with --toggle-recording or the tray menu.");
+            return;
+        }
+        println!("[Hotkeys] Native Wayland press/release detection enabled");
+    }
     println!("[Hotkeys] Starting hotkey detection loop...");
 
     // Try to create DeviceState - this panics on macOS if no accessibility permissions
     // Retry every 5 seconds until permissions are granted
-    let device_state = loop {
-        match std::panic::catch_unwind(std::panic::AssertUnwindSafe(DeviceState::new)) {
-            Ok(state) => {
-                println!("[Hotkeys] DeviceState initialized successfully");
-                let _ = event_handle.emit("hotkey-debug", serde_json::json!({
-                    "event": "init",
-                    "message": "Accessibility permissions granted - hotkeys enabled!"
-                }));
-                break state;
-            }
-            Err(_) => {
-                eprintln!("[Hotkeys] Waiting for Accessibility permissions... retrying in 5 seconds");
-                let _ = event_handle.emit("hotkey-debug", serde_json::json!({
+    let device_state = if desktop::is_wayland() {
+        None
+    } else {
+        Some(loop {
+            match std::panic::catch_unwind(std::panic::AssertUnwindSafe(DeviceState::new)) {
+                Ok(state) => {
+                    println!("[Hotkeys] DeviceState initialized successfully");
+                    let _ = event_handle.emit(
+                        "hotkey-debug",
+                        serde_json::json!({
+                            "event": "init",
+                            "message": "Accessibility permissions granted - hotkeys enabled!"
+                        }),
+                    );
+                    break state;
+                }
+                Err(_) => {
+                    eprintln!(
+                        "[Hotkeys] Waiting for Accessibility permissions... retrying in 5 seconds"
+                    );
+                    let _ = event_handle.emit("hotkey-debug", serde_json::json!({
                     "event": "waiting",
                     "message": "Waiting for Accessibility permissions. Please add this app in System Settings > Privacy & Security > Accessibility. Retrying in 5 seconds..."
                 }));
-                thread::sleep(Duration::from_secs(5));
+                    thread::sleep(Duration::from_secs(5));
+                }
             }
-        }
+        })
     };
 
     let poll_interval = Duration::from_millis(10); // Poll every 10ms
@@ -725,14 +804,20 @@ fn run_hotkey_loop(event_handle: AppHandle) {
         }
 
         // Get current keyboard state
-        let keys: Vec<Keycode> = device_state.get_keys();
+        let keys: Vec<Keycode> = device_state
+            .as_ref()
+            .map(|state| state.get_keys())
+            .unwrap_or_default();
 
         if !keys.is_empty() && !keys_detected_ever {
             keys_detected_ever = true;
-            let _ = event_handle.emit("hotkey-debug", serde_json::json!({
-                "event": "first_key",
-                "message": "First key detected - Accessibility permissions working!"
-            }));
+            let _ = event_handle.emit(
+                "hotkey-debug",
+                serde_json::json!({
+                    "event": "first_key",
+                    "message": "First key detected - Accessibility permissions working!"
+                }),
+            );
         }
 
         // On macOS no keys at all usually means Input Monitoring isn't granted. Say so once.
@@ -747,6 +832,10 @@ fn run_hotkey_loop(event_handle: AppHandle) {
         }
 
         let mut pressed: HashSet<String> = keys.iter().map(keycode_to_string).collect();
+        #[cfg(target_os = "linux")]
+        if desktop::is_wayland() {
+            pressed = linux_input::pressed_keys().unwrap_or_default();
+        }
 
         // Get current mouse state (platform-specific)
         #[cfg(target_os = "windows")]
@@ -759,12 +848,15 @@ fn run_hotkey_loop(event_handle: AppHandle) {
             }
         }
         #[cfg(not(target_os = "windows"))]
-        {
+        if let Some(device_state) = &device_state {
             // Use device_query on other platforms
             let mouse = device_state.get_mouse();
             for (idx, &is_pressed) in mouse.button_pressed.iter().enumerate() {
                 if is_pressed {
-                    pressed.insert(mouse_button_to_string(idx));
+                    let button = mouse_button_to_string(idx);
+                    if !button.is_empty() {
+                        pressed.insert(button);
+                    }
                 }
             }
         }
@@ -831,14 +923,25 @@ fn run_hotkey_loop(event_handle: AppHandle) {
 
 /// Put the main window back where it was, unless that spot is no longer on any monitor
 fn restore_main_window(app: &tauri::App) {
-    let Some(main_window) = app.get_webview_window("main") else { return };
-    let Some(state) = load_window_state(app.handle()) else { return };
+    let Some(main_window) = app.get_webview_window("main") else {
+        return;
+    };
+    let Some(state) = load_window_state(app.handle()) else {
+        return;
+    };
 
     let monitors: Vec<MonitorRect> = main_window
         .available_monitors()
         .unwrap_or_default()
         .iter()
-        .map(|m| (m.position().x, m.position().y, m.size().width, m.size().height))
+        .map(|m| {
+            (
+                m.position().x,
+                m.position().y,
+                m.size().width,
+                m.size().height,
+            )
+        })
         .collect();
     if state.is_reachable(&monitors) {
         let _ = main_window.set_position(tauri::Position::Physical(tauri::PhysicalPosition {
@@ -857,11 +960,29 @@ fn restore_main_window(app: &tauri::App) {
 }
 
 fn main() {
+    let mut context = tauri::generate_context!();
+    if desktop::is_wayland() {
+        // The interaction webview also shows itself from a frontend effect.
+        // Do not create either ordinary toplevel on Wayland at all.
+        context
+            .config_mut()
+            .app
+            .windows
+            .retain(|window| !matches!(window.label.as_str(), "overlay" | "overlay-interaction"));
+    }
     // single-instance must be registered before any other plugin.
     #[allow(unused_mut)]
     let mut builder = tauri::Builder::default()
-        .plugin(tauri_plugin_single_instance::init(|app, _argv, _cwd| {
-            show_main_window(app);
+        .plugin(tauri_plugin_single_instance::init(|app, argv, _cwd| {
+            if let Some(event) = hotkeys::control_event(&argv) {
+                // Do not focus Abe: the transcription must land in the app
+                // where the desktop shortcut was pressed.
+                if !HOTKEYS_DISABLED.load(Ordering::SeqCst) {
+                    let _ = app.emit(event, ());
+                }
+            } else {
+                show_main_window(app);
+            }
         }))
         .plugin(tauri_plugin_opener::init())
         .plugin(tauri_plugin_os::init())
@@ -882,12 +1003,15 @@ fn main() {
                 if window.label() == "main" {
                     if let (Ok(position), Ok(size)) = (window.outer_position(), window.outer_size())
                     {
-                        save_window_state(window.app_handle(), &WindowState {
-                            x: position.x,
-                            y: position.y,
-                            width: size.width,
-                            height: size.height,
-                        });
+                        save_window_state(
+                            window.app_handle(),
+                            &WindowState {
+                                x: position.x,
+                                y: position.y,
+                                width: size.width,
+                                height: size.height,
+                            },
+                        );
                     }
                     let _ = window.hide();
                     api.prevent_close();
@@ -941,6 +1065,7 @@ fn main() {
             set_window_size,
             open_window,
             is_updater_enabled,
+            needs_desktop_shortcuts,
             engine::get_engine_status,
             engine::transcribe_recording,
             engine::transform_text,
@@ -953,7 +1078,7 @@ fn main() {
             engine::cancel_local_model_download,
             engine::delete_local_model,
         ])
-        .build(tauri::generate_context!())
+        .build(context)
         .expect("error while building tauri application");
 
     app.run(|_app, event| {
@@ -971,8 +1096,24 @@ fn main() {
 mod tests {
     use super::*;
 
+    #[cfg(target_os = "linux")]
+    #[test]
+    fn linux_mouse_buttons_use_one_based_x11_indices() {
+        assert_eq!(mouse_button_to_string(0), "");
+        assert_eq!(mouse_button_to_string(1), "MouseLeft");
+        assert_eq!(mouse_button_to_string(2), "MouseMiddle");
+        assert_eq!(mouse_button_to_string(3), "MouseRight");
+        assert_eq!(mouse_button_to_string(4), "");
+        assert_eq!(mouse_button_to_string(5), "");
+    }
+
     fn window(x: i32, y: i32) -> WindowState {
-        WindowState { x, y, width: 400, height: 600 }
+        WindowState {
+            x,
+            y,
+            width: 400,
+            height: 600,
+        }
     }
 
     #[test]

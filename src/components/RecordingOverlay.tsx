@@ -1,11 +1,8 @@
 import { useState, useEffect, useRef } from 'react';
 import { listen } from '@tauri-apps/api/event';
 import { invoke } from '@tauri-apps/api/core';
-import { getCurrentWebviewWindow } from '@tauri-apps/api/webviewWindow';
 import useEngineStatus from '../hooks/useEngineStatus';
 import { formatSessionDuration } from './SessionClock';
-
-const appWindow = getCurrentWebviewWindow();
 
 function formatElapsedTime(seconds: number): string {
   return formatSessionDuration(seconds * 1000);
@@ -177,12 +174,6 @@ export default function RecordingOverlay() {
       unlistenHover.then(fn => fn());
       if (messageTimerRef.current) clearTimeout(messageTimerRef.current);
     };
-  }, []);
-
-  // Set ignore cursor events so clicks pass through to apps behind
-  // The interaction overlay (separate window) handles mouse events for dragging
-  useEffect(() => {
-    appWindow.setIgnoreCursorEvents(true).catch(console.error);
   }, []);
 
   // Listen for lock state changes from interaction overlay (via localStorage)

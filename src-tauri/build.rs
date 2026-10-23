@@ -33,6 +33,7 @@ const COMMANDS: &[&str] = &[
     "export_history",
     // Updater availability (the updater itself is behind the `updater` feature)
     "is_updater_enabled",
+    "needs_desktop_shortcuts",
     // Transcription engine and provider keys
     "get_engine_status",
     "transcribe_recording",

@@ -26,7 +26,7 @@ hound = "3.5"
 rubato = "0.15"
 arboard = "3.2"
 lazy_static = "1.4"
-enigo = "0.2"
+enigo = { version = "0.2", default-features = false, features = ["x11rb"] }
 device_query = "2.1"
 # Transcription engine: provider HTTP (rustls with the ring provider, no OpenSSL),
 # keychain storage for API keys, local Whisper and model verification
@@ -62,3 +62,12 @@ updater = ["dep:tauri-plugin-updater"]
 metal = ["whisper-rs/metal"]
 vulkan = ["whisper-rs/vulkan"]
 cuda = ["whisper-rs/cuda"]
+
+[target.'cfg(target_os = "linux")'.dependencies]
+wayland-client = "0.31"
+wayland-protocols-misc = { version = "0.2", features = ["client"] }
+xkbcommon = "0.7"
+tempfile = "3"
+evdev = "0.13"
+enigo = { version = "0.2", default-features = false, features = ["wayland", "x11rb"] }
+arboard = { version = "3.2", features = ["wayland-data-control"] }

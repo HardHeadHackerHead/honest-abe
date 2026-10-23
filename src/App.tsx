@@ -1,6 +1,7 @@
 import { useState, useCallback, useRef, useEffect } from 'react';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { listen, emit } from '@tauri-apps/api/event';
+import { invoke } from '@tauri-apps/api/core';
 import { getCurrentWebviewWindow } from '@tauri-apps/api/webviewWindow';
 import RecordingButton from './components/RecordingButton';
 import UsageDashboard from './components/UsageDashboard';
@@ -33,6 +34,10 @@ import { Home, BarChart3, Info, Settings, Pencil } from 'lucide-react';
 const appWindow = getCurrentWebviewWindow();
 
 function App() {
+  const [needsDesktopShortcuts, setNeedsDesktopShortcuts] = useState(false);
+  useEffect(() => {
+    invoke<boolean>('needs_desktop_shortcuts').then(setNeedsDesktopShortcuts).catch(console.error);
+  }, []);
   const [activeTab, setActiveTab] = useState<'home' | 'usage' | 'about' | 'settings'>('home');
   const { statusMessage, showStatus } = useStatusMessage();
   const [engineError, setEngineError] = useState<EngineError | null>(null);
@@ -249,6 +254,7 @@ function App() {
     if (isCheckingEngine) return '';
     if (!engineReady) return 'Set up transcription to start';
     if (isProcessing) return 'Transcribing...';
+    if (needsDesktopShortcuts) return isRecording ? 'Recording... click to stop' : 'Click the microphone to start';
     if (isRecording) {
       return `Recording... ${getPushToTalk() ? 'Release hotkey to stop' : 'Press hotkey to stop'}`;
     }
@@ -311,6 +317,13 @@ function App() {
           <div className="flex flex-col items-center gap-3 py-4 h-full">
             {/* Update Banner (soft update notification) */}
             <UpdateBanner />
+
+            {needsDesktopShortcuts && (
+              <p className="text-on-surface-variant text-center text-xs max-w-sm">
+                On Wayland, use the recording button or the tray's Start / stop dictation action.
+                Global shortcuts must be configured in your desktop to run Abe with --toggle-recording.
+              </p>
+            )}
 
             <EngineBanner
               notReady={!isCheckingEngine && !engineReady}
@@ -439,6 +452,7 @@ function App() {
       {/* Onboarding Modal */}
       {showOnboarding && (
         <OnboardingModal
+          needsDesktopShortcuts={needsDesktopShortcuts}
           isOpen={showOnboarding}
           onClose={() => setShowOnboarding(false)}
           onComplete={() => {

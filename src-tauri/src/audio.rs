@@ -1,11 +1,13 @@
 use cpal::traits::{DeviceTrait, HostTrait, StreamTrait};
 use cpal::{FromSample, SizedSample};
+use hound::{SampleFormat, WavSpec, WavWriter};
+use rubato::{
+    Resampler, SincFixedIn, SincInterpolationParameters, SincInterpolationType, WindowFunction,
+};
+use std::io::Cursor;
 use std::sync::atomic::{AtomicU64, Ordering};
 use std::sync::{mpsc, Mutex, OnceLock};
 use std::thread;
-use rubato::{Resampler, SincFixedIn, SincInterpolationType, SincInterpolationParameters, WindowFunction};
-use std::io::Cursor;
-use hound::{WavWriter, WavSpec, SampleFormat};
 use tauri::{AppHandle, Emitter};
 
 // Target sample rate for output (Whisper is optimized for 16kHz)
@@ -18,8 +20,8 @@ pub const MAX_RECORDING_SECONDS: u32 = 15 * 60;
 // Silence detection settings (conservative to avoid cutting speech).
 // 0.005 RMS is about -46 dBFS: above a typical mic noise floor, well below speech (R19).
 const SILENCE_THRESHOLD: f32 = 0.005;
-const MIN_SILENCE_DURATION_MS: u32 = 500;  // Only trim silence longer than 500ms
-const SILENCE_PAD_MS: u32 = 200;           // Keep 200ms silence around speech for natural pauses
+const MIN_SILENCE_DURATION_MS: u32 = 500; // Only trim silence longer than 500ms
+const SILENCE_PAD_MS: u32 = 200; // Keep 200ms silence around speech for natural pauses
 
 /// Events emitted to the webview while recording
 pub const EVENT_RECORDING_ERROR: &str = "recording-error";
@@ -164,9 +166,7 @@ pub fn list_devices() -> Result<Vec<String>, String> {
         .input_devices()
         .map_err(|e| format!("Failed to enumerate devices: {}", e))?;
 
-    let device_names: Vec<String> = devices
-        .filter_map(|d| d.name().ok())
-        .collect();
+    let device_names: Vec<String> = devices.filter_map(|d| d.name().ok()).collect();
 
     Ok(device_names)
 }
@@ -286,7 +286,9 @@ fn open_stream() -> Result<cpal::Stream, String> {
         other => Err(format!("Unsupported input sample format: {}", other)),
     }
     .and_then(|stream| {
-        stream.play().map_err(|e| format!("Failed to start stream: {}", e))?;
+        stream
+            .play()
+            .map_err(|e| format!("Failed to start stream: {}", e))?;
         Ok(stream)
     });
 
@@ -348,7 +350,9 @@ fn handle_input(data: &[f32], channels: usize, epoch: u64) {
         return;
     }
     let limit_reached = {
-        let Ok(mut audio) = AUDIO_SAMPLES.lock() else { return };
+        let Ok(mut audio) = AUDIO_SAMPLES.lock() else {
+            return;
+        };
         if !audio.is_recording || audio.recording_epoch != epoch {
             return;
         }
@@ -394,7 +398,11 @@ fn handle_stream_error(err: cpal::StreamError, epoch: u64) {
 /// Resample mono audio. Feeds fixed-size chunks and then flushes the resampler,
 /// so the end of the recording isn't cut off, and drops the filter delay at the
 /// start (R19).
-fn resample_audio(samples: Vec<f32>, source_rate: u32, target_rate: u32) -> Result<Vec<f32>, String> {
+fn resample_audio(
+    samples: Vec<f32>,
+    source_rate: u32,
+    target_rate: u32,
+) -> Result<Vec<f32>, String> {
     if source_rate == target_rate || samples.is_empty() {
         return Ok(samples);
     }
@@ -432,7 +440,9 @@ fn resample_audio(samples: Vec<f32>, source_rate: u32, target_rate: u32) -> Resu
         output.extend_from_slice(&chunk[0]);
     }
     while output.len() < expected + delay {
-        let chunk = resampler.process_partial::<&[f32]>(None, None).map_err(failed)?;
+        let chunk = resampler
+            .process_partial::<&[f32]>(None, None)
+            .map_err(failed)?;
         if chunk[0].is_empty() {
             break;
         }
@@ -561,11 +571,13 @@ fn encode_wav(samples: &[f32], sample_rate: u32) -> Result<Vec<u8>, String> {
         // Convert f32 samples to i16 for WAV
         for &sample in samples {
             let sample_i16 = (sample.clamp(-1.0, 1.0) * i16::MAX as f32) as i16;
-            writer.write_sample(sample_i16)
+            writer
+                .write_sample(sample_i16)
                 .map_err(|e| format!("Failed to write WAV sample: {}", e))?;
         }
 
-        writer.finalize()
+        writer
+            .finalize()
             .map_err(|e| format!("Failed to finalize WAV: {}", e))?;
     }
 
@@ -623,6 +635,20 @@ pub fn stop_capture() -> Result<Capture, String> {
 mod tests {
     use super::*;
 
+    #[cfg(target_os = "linux")]
+    #[test]
+    #[ignore = "opens the default microphone briefly; requires a desktop audio session"]
+    fn linux_capture_smoke() {
+        let devices = list_devices().expect("enumerate audio inputs");
+        assert!(!devices.is_empty(), "no audio inputs");
+        start_capture().expect("open microphone");
+        thread::sleep(std::time::Duration::from_millis(250));
+        let capture = stop_capture().expect("stop microphone");
+        assert!(!capture.is_empty(), "the microphone produced no samples");
+        assert!(capture.duration_seconds() > 0.0);
+        assert!(capture.to_wav().expect("encode capture").len() > 44);
+    }
+
     fn converted<T>(data: &[T]) -> Vec<f32>
     where
         T: SizedSample,
@@ -675,9 +701,17 @@ mod tests {
     #[test]
     fn resampling_odd_lengths_and_rates() {
         let output = resample_audio(vec![0.1; 44_100 * 2 + 17], 44_100, 16_000).unwrap();
-        assert_eq!(output.len(), ((44_100 * 2 + 17) as f64 * 16_000.0 / 44_100.0).round() as usize);
-        assert_eq!(resample_audio(vec![0.2; 10], 16_000, 16_000).unwrap(), vec![0.2; 10]);
-        assert!(resample_audio(Vec::new(), 48_000, 16_000).unwrap().is_empty());
+        assert_eq!(
+            output.len(),
+            ((44_100 * 2 + 17) as f64 * 16_000.0 / 44_100.0).round() as usize
+        );
+        assert_eq!(
+            resample_audio(vec![0.2; 10], 16_000, 16_000).unwrap(),
+            vec![0.2; 10]
+        );
+        assert!(resample_audio(Vec::new(), 48_000, 16_000)
+            .unwrap()
+            .is_empty());
     }
 
     #[test]

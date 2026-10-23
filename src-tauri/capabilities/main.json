@@ -36,6 +36,7 @@
     "allow-hide-overlay",
     "allow-open-window",
     "allow-is-updater-enabled",
+    "allow-needs-desktop-shortcuts",
     "allow-get-engine-status",
     "allow-transcribe-recording",
     "allow-transform-text",
